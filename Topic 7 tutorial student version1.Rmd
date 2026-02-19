@@ -1,0 +1,54 @@
+-----------------------------------------------------------------------------
+In class activity: Let's think about setting up some hypothesis tests and running them. 
+-----------------------------------------------------------------------------
+
+Group 1: I am rolling one six-sided die 50 times. I roll a 3 40/50 times. Design a test to show whether or not the die is fair and report your results.
+
+
+1) What is the alternate hypothesis and what is the null hypothesis?
+
+2) Design the binom test to show your results
+
+```{r}
+
+```
+
+3)Using a significance level of .05, Can we reject the null hypothesis
+
+________________________________
+Group 2: I have a 10-sided die, and I role it 100 times. I roll a 2 20 times. Design a test to show whether the die is fair. 
+
+4) What is the alternate hypothesis and what is the null hypothesis?
+ 
+
+5) Design the binom test to show your results
+
+```{r}
+
+```
+6) If we have an alpha=.001, Can we reject the null hypothesis
+
+______________________________________________________
+
+Group 3: I have a bag of marbles: 3 blue, 2 green, and 1 red. I draw from the bag (with replacement) 50 times. I drew a blue marble 35 times. Design a test to show whether we pulled a blue marble MORE than 50% of the time. 
+
+7) What are the alternate and null hypotheses
+
+8) Design a binom test
+```{r}
+
+```
+9) At which significance levels can we reject the null hypothesis? 
+______________________________________________________
+
+Group 4: I am running a study to test for evidence of psychic ability among my participants. A lab technician holds up a card so that the back is facing the participant and the front of the card is facing the technician. Participants need to guess if the card has an image on it or if it is blank.  Out of 900 participants 467 are correct with their guess. 
+
+10) What are the alternate and null hypotheses
+
+
+11) Design a binom test
+```{r}
+
+```
+12) Are our participants significantly more psychic than what we would predict about the larger population?
+
