@@ -1,0 +1,61 @@
+-----------------------------------------------------------------------------
+In class activity: Let's think about setting up some hypothesis tests and running them. 
+-----------------------------------------------------------------------------
+
+Group 1: I am rolling one six-sided die 50 times. I roll a 3 40/50 times. Design a test to show whether or not the die is fair and report your results.
+
+
+1) What is the alternate hypothesis and what is the null hypothesis?
+
+2) Design the binom test to show your results
+
+```{r}
+binom.test(40, 50, p =(1/6))
+```
+
+3)Using a significance level of .05, Can we reject the null hypothesis
+Yes because the p value is extraordinarily small.
+________________________________
+Group 2: I have a 10-sided die, and I role it 100 times. I roll a 2 20 times. Design a test to show whether the die is fair. 
+
+4) What is the alternate hypothesis and what is the null hypothesis?
+ The null hypothesis is that the die is fair and you have a 10% chance to roll a 2
+ The alternative hypothesis is that the die is not fair and you do not have a 10% chance to roll a 2
+
+5) Design the binom test to show your results
+
+```{r}
+binom.test(20, 100, p = 0.1)
+```
+6) If we have an alpha=.001, Can we reject the null hypothesis
+No because our p value is highter than .001.
+
+______________________________________________________
+
+Group 3: I have a bag of marbles: 3 blue, 2 green, and 1 red. I draw from the bag (with replacement) 50 times. I drew a blue marble 35 times. Design a test to show whether we pulled a blue marble MORE than 50% of the time. 
+
+7) What are the alternate and null hypotheses
+The null hypothesis is that you should be pulling blue 50% of the time
+The alternate hypothesis is that you wont pull blue 50% of the time
+8) Design a binom test
+```{r}
+binom.test(35, 50, p = 0.5, alternative = "greater")
+```
+9) At which significance levels can we reject the null hypothesis? 
+At the .05 and .01 alpha values
+
+______________________________________________________
+
+Group 4: I am running a study to test for evidence of psychic ability among my participants. A lab technician holds up a card so that the back is facing the participant and the front of the card is facing the technician. Participants need to guess if the card has an image on it or if it is blank.  Out of 900 participants 467 are correct with their guess. 
+
+10) What are the alternate and null hypotheses
+the null hypothesis is that you have a 50% chance of guessing the right answer
+the alternate is that you have a higher than 50% chance
+
+
+11) Design a binom test
+```{r}
+binom.test(467, 900, p=.5, alternative="greater")
+```
+12) Are our participants significantly more psychic than what we would predict about the larger population?
+No because the p value is not greater than .05
