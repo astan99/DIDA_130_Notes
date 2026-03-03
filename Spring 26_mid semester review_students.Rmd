@@ -1,0 +1,343 @@
+____________________________
+Topic 4: Distributions
+____________________________
+
+Binomial Distribution: models the number of "successes" of independent trials where each trial only has the possiblity of two outcomes: success or failure. The probability of success or failure is the same. The most common example is a coin flip, but this could apply to "yes"/"no" questions, medical trials "effective"/"not effective," two candiate election "candidate A"/"candidate B"
+
+This is in contrast to a normal distribution which is used for continuous data. Continuous data has an infinite number of values between whole numbers. In a normal distribution a model of a random variable falling within a certain range under the symmetrical bell shaped curve. The area "under the curve" adds up to 100% probability. We use the normal distribution for continuous data: height, temperature, weight, time, etc.  We can have a height of 72 inches or 72.358 inches.  Someone can run a mile in 8 minutes or 8.942 minutes. Continuous data has an infinite number of values between whole numbers. 
+
+The distribution functions in base R have four main forms:
+
+What.it.does	                    	Normal.distribution	Binomial.distribution
+probability (density) of	                dnorm()	           dbinom()
+cumulative probability of	                pnorm()	           pbinom()
+generate random number from	              rnorm()	           rbinom()
+calculates quantiles                      qnorm()            qbinom()
+
+***d form and p form are the ones we are paying attention to in this class***
+
+dnorm() and dbinom() estimate the exact probability of an outcome
+while the p-form estimate a cumulative probability - in this case, you specify a quantile (dividing a value into equal parts), and R will tell you the probability of a result less than or equal to the quantile.
+
+***these are just good to be aware of***
+The q-form calculates the quantile of the distribution, meaning that if you specify a probability value p, it gives you the corresponding percentile. The r-form generates a random number from the distribution. I'll show you what some of these mean using examples next. 
+
+
+____________
+dbinom
+____________
+
+#Let's find the probability of rolling four 2's on a 12 sided dice. We have 15, 12 sided dice.
+
+x= number of successes 
+N= number of trials
+theta= the probability of one success
+
+Full Formula dbinom( x = number of successes, size = N , prob = theta/one success)
+
+
+
+```{r}
+dbinom(x=4, size=15, prob = 1/12)
+
+```
+dbinom gives us the exat probablity of a specific outcome. It is binom because we only have two options, land on 2 (success) or not landing on 2 (failue).
+
+There is a 2.53% chance of landing on four 2s out of 15 dice. 
+
+______
+pbinom
+______
+
+q= numbder of successes (quantile)
+size= number of trials (N)
+prob= probability of one success (theta)
+
+full formula pbinom (q=number of successes, size = N, prob = theta )
+
+Let's say I want to know the probability of landing on 8 or fewer 2s out of 15 dice. The dice is still 12 sided
+
+```{r}
+pbinom( q= 8, size = 15, prob = 1/12)
+```
+pbinom is measuring the cumulative probablity of an event. We're using binom again because we only have two outcomes: the dice lands on 2 (success), the dice does not land on 2(failure)
+
+We have a 99% chance of 8 or fewer dice landing on 2. 
+
+_______
+pnorm
+_______
+
+Just to show the comparison between binom and norm, let's look at something that would have a normal distribution. 
+
+We have 10 marathon runners and are tracking their times. Time is measured in hours. 
+
+```{r}
+marathon <- c(3, 5, 8, 5, 10, 12, 5, 11, 9, 3)
+```
+Breaking down the pnorm forumla
+
+x= value you are finding the probability for
+mean = mean of your sample (mu) (technically it is the mean of our population, but we have to base it n our sample)
+sd= sd of our sample (sigma) (technically it is the standard deviation of our population, but we have to base it on our sample)
+
+Full Formula for pnorm:
+  
+pnorm(q = x, mean = μ, sd = σ)
+  
+Now I pull some runners from the population where our sample comes from. They are not the same runners as our sample. What is the probability that they run the marathon in 4hrs or less. 
+
+q= 4
+mean = mean(marathon)
+sd= sd(marathon)
+
+```{r}
+pnorm(q= 4, mean= mean(marathon), sd = sd(marathon))
+```
+There is a 17.5% probability that the runners will complete the marathon in 4hrs or less. 
+                          
+What is the probability that a random person from this population is runs between 4 and 8 hours
+
+```{r}
+pnorm(q= 8, mean= mean(marathon), sd = sd(marathon))-pnorm(q= 4, mean= mean(marathon), sd = sd(marathon))
+```
+There is a 43,2% probability that the runners will complete the marathon between 4 and 8 hours.
+
+What about the probability that a random person from this population where the sample comes from is runs 8 hours or more?
+
+```{r}
+1-pnorm(q= 8, mean= mean(marathon), sd = sd(marathon))
+```
+There is a 39.3% probability that the runners will complete the marathon between 4 and 8 hours.
+
+________
+Topic 5
+________
+_____________________________________
+ Variance and Standard Deviation
+_____________________________________
+
+Additional Info: https://www.nlm.nih.gov/oet/ed/stats/02-900.html
+
+What is variance: it is the average of squared differences from the mean. It is a measure of how spread out the data is. Not typically reported by itself, but it is used to calculate the standard deviation which is a the square root of the variance. 
+
+What is Standard Deviation? The average of how much each value in the data deviates from the mean. It tells you how clustered or how dispersed the data is from the mean.  A high SD means more variation. A low SD means less variation. 
+
+Why do we care about standard deviation?
+1) You can compare individual data points to a larger population
+2) You can use SD to identify outliers. Most data is contained within 2 standard deviations from the mean, so if a data point is 3 standard deviations from the mean or higher it is way above the average. 
+
+Standard Deviation Graph
+
+code from: https://www.statology.org/plot-normal-distribution-r/#:~:text=standard%20deviation%20=%201-,To%20create%20a%20normal%20distribution%20plot%20with%20mean%20=%200%20and,+%20stat_function(fun%20=%20dnorm)
+
+***You do not need to do this***
+
+```{r}
+library(ggplot2)
+ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+stat_function(fun = dnorm)
+```
+
+This is our normal distribution. On the x axis is our standard deviation. You can map our data onto the standard deviation. 
+
+If the SD for a value = 0, it is the same value as our mean
+
+Most of our data is within +/- 3 SD of the mean--almost 99% of the data 
+
+If a datapoint is beyond +/- 3 SD of the mean, it is an outlier
+
+
+3) You can use it to make predictions or understand reliability
+
+Lets say you have two different students in a science class. Here are the grades they scored for 10 tests. Each test taker has a mean score of 85. Which student is more consistent?
+
+```{r}
+student1 <- c(83, 84, 85, 86, 87, 85, 84, 86, 85, 85)
+student2 <- c(60, 70, 75, 80, 85, 90, 95, 100, 95, 100)
+```
+ 
+Calculating the SD by hand for student 1 
+ 
+Step 1: We calculate the deviation from the mean for each data point
+                                                        
+value mean  deviation  
+83 -   85 =     -2
+84  -  85 =     -1
+85 -   85 =     0
+86 -   85 =     1
+87 -   85 =     2
+85 -   85 =     0
+84 -   85 =     -1
+86 -   85 =     1
+85 -   85 =     0
+85 -   85 =     0
+
+
+Step 2: Square each of the deviations to get rid of the negative values
+
+value mean  deviation  square deviation
+83 -   85 =     -2      -2^2= 4
+84  -  85 =     -1      -1^2= 1
+85 -   85 =     0       0^2 = 0
+86 -   85 =     1       1^2 = 1
+87 -   85 =     2       2^2 = 4
+85 -   85 =     0       0^2=  0
+84 -   85 =     -1      -1^2= 1
+86 -   85 =     1       1^2 = 1
+85 -   85 =     0       0^2 = 0
+85 -   85 =     0       0^2 = 0
+
+Step 3: Add the sum of the squared deviation
+
+```{r}
+4+1+0+1+4+0+1+1+0+0
+
+sumofsquares = 12
+```
+Step 4: Calculate the variance
+
+Sum of squred deviations divided by the total number of observations 
+
+```{r}
+12/10
+
+variance =12/10
+```
+Step 5: Take the Square Root of the variance to get the standard deviation
+
+```{r}
+sqrt(1.2)
+
+Student1SD = sqrt(1.2) 
+```
+**r calculates sd using N-1 in the denominator of the variance (N-1 = 9 in our example). This is a statistical correction because it is a less biased estimate for the true population sd which in most cases is never actually known.**  Sqrt ( SumSq / N-1)
+
+**to clarify, SD for the sample is NOT THE SAME as the SD for the population. What r calculates is the ESTIMATED SD FOR THE POPULATION, not the sample SD. The sample SD is always lower than the estimated population SD (for student 1, 1.095 sample SD is lower than 1.154, estimated pop SD)**
+
+```{r}
+sd(student1)
+```
+We can look at each student's standard deviation. The student that is closer to 0 has less variation.
+
+```{r}
+sd(student1)
+sd(student2)
+```
+Student 1 is more consistent because their SD is closer to 0 than student 2. Student 2's test scores are more variable than student 1. 
+
+We can add the SD to the mean to get the range of scores within a specific SD
+
+The mean for student 1 is 85. 
+
+start of range = 85-1.15 = 83.85
+end of range = 85 + 1.15 = 86.15
+
+A score between 83.5 and 86.15 would be within 1 SD of the mean.  
+
+```{r}
+85-1.15
+85+1.15
+```
+_____________
+Trimmed Mean
+_____________
+
+A reason to take the mean of trimmed data is to limit th effect of outliers in the data. Let's take a look at student 1's test scores again. We have his scores for 20 tests. 
+
+student1_example2 <- c(83, 84, 85, 86, 87, 85, 84, 86, 85, 85, 100, 110, 108, 85, 84, 71, 65, 85, 85, 105)
+
+```{r}
+hist(student1_example2,
+     col = "lightblue",        
+     border = "black",               
+     breaks = 7)   
+```
+
+most of our data is concentrated between 80-85, but we have a handful of scores that are extreme outliers. Our student earned bonus points on a few tests and scored over 100. These are pulling the mean forward and making it higher than the median. 
+
+
+
+```{r}
+mean(student1_example2)
+median(student1_example2)
+```
+We can mitigate the effect of these outliers by trimming off 10% of the higest and 10% of the lowest values. Now a mean is being taken of the middle most 80% of the data. 
+
+```{r}
+mean(student1_example2, trim = 0.1)
+```
+If we increase the trim to 50%, the mean and the median are the same. We've elimanated 50% of the top and bottom of our data and are basically left with the median. 
+```{r}
+mean(student1_example2, trim = 0.5)
+```
+___________
+Skewed Data
+___________
+
+We won't be using the function for skew right now. Skewed data will become more important in topics after the midterm.
+
+```{r}
+setwd("/Users/aidenstanton/projects/R")
+twitch <- read.csv("twitchdata.csv")
+
+```
+Skew essentially tells us if our data is asymmetric, and, if so, the direction of that asymmetry. As a refresher, let's look at the data from earlier that was positively skewed:
+
+
+
+```{r}
+ggplot(twitch, aes(x = Followers))+
+  geom_histogram(fill = "blue")+
+  theme_minimal()
+```
+In this data, there are a few very large values that skew the data in a positive direction. What about negatively skewed data? Let's see what this looks like:
+
+```{r}
+ggplot(twitch, aes(x = -Followers))+
+  geom_histogram(fill = "red")+
+  theme_minimal()
+```
+This is considered negatively skewed, because there are a small number of very negative values in the distribution that might skew the mean negatively. We can use the skew() function in the psych package to verify the skew of the data (although you can usually tell pretty easily from a visual inspection!)
+
+In a positive skew, the mean is pulled up in a positive (number) direction. The mean is higher than the median 
+
+in a negative skew the mean is pulled down in a negative (number) direction. The mean is lower than the median. 
+
+
+_________
+Topic 7
+_________
+
+____________
+binom.test
+____________
+
+We use a binom.test to calculate the exact probablity of an outcome under the null hypothesis. Your null hypothesis is what you would expect to see and your alternative hypothesis is your or predictive hypothesis. We want an exact p-value and confidence interval. The p-value will help us understand if our observation is significantly different from the expected outcome Binom.test is similar to dbinom but they serve different funtions. Binom.test is used to test a specific hypothesis. Is the event I observed in line with the probablity I would expect to see. dbinom is just about the chance of success with no predictions. 
+
+Using a coin flip as an example:
+
+#Null: The probability of flipping heads is 50%, or θ = 0.5
+#Alternative: The probability of flipping heads is not 50%, or θ ≠ 0.5 (this is what we predict)
+
+I have a sample of 200 participants. 130 land on heads. 
+null= the probablity of landing on heads is 50%
+Alternative+ the probablity of landing on heads is not 50&
+
+130 is more than half of 200, but is it significantly so? Will we reject or retain the null hypothesis?
+
+```{r}
+options(scipen = 999)
+
+binom.test(x=130, n=200, p=.5 )
+
+#x=130 because that was the result of our experiment (X = the observed "success")
+#n=200 is the number of participants
+#p = .5 is the probability of flipping a head (p would equal the probability of a "successful" outcome under the null hypothesis)
+```
+the p-value is <.05, we can reject the null hypothesis
+
+The confidence interval is telling us where the true probability for flipping heads with this coin is between .58 and .71 (so over 50%). If we repeated this experiment over and over again, 95% of those confidence intervals would contain the range of the true probability of landing on heads. 
+
+.  
+

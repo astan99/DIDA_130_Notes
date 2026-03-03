@@ -1,0 +1,318 @@
+Topic 9 Tutorial Part I: Comparing 2 means Tutorial
+_____________________________________________________________________
+
+Z-test
+-almost never used in real life
+-good practice for understanding t-tests
+-we are calculating the standardized version of a sample mean, not the standardized version of a single observation (when we used z-scores in topic 5)
+_____________________________________________________________________
+
+Example:
+
+Professor Carpenter has an intro stats course with hundreds of students.  The overall class average is 71.4 with a standard deviation of 9.5. Prof. Carpenter also grades the class on a curve, so it is normally distributed.  In that class there are 22 students from Engineering.  Are the engineering students scoring the same as everyone else or are they scoring higher or lower?
+
+```{r}
+grades <- c(50, 91, 60, 60, 64, 66, 66, 67, 69, 70, 74, 76, 76, 88, 77, 79, 79, 79, 81, 82, 82, 89)
+mean(grades)
+```
+With a mean of about 73.86, it looks like they are scoring a bit higher, but is that statically significant? An N of 22 (number of observations) is not very big. 
+
+```{r}
+Xbar_sample_mean <- mean(grades)
+mu.null <- 71.4
+N <- 22
+#if we assume that the Engineering students have the same SD as the full class, 
+sigma <- 9.5
+```
+
+What do we want to learn from this data? We want to know if the true population mean of where our sample comes from has a mean of 71.4. 
+    H0, null hypothesis, is that mu(population mean) equals 71.4
+    HA, alternative hypothesis, is that mu (population mean) does not equal 71.4
+
+    
+```{r}
+#next we need to calculate the standard error of the mean
+SEM <- sigma/sqrt(N)
+#standard error of the mean is sigma (population SD) divided by the square root of the number of observations
+
+```
+
+```{r}
+#then we need to calculate our z-score
+
+z.score <- (Xbar_sample_mean-mu.null)/SEM
+#z score = sample mean-estimated population mean divided by the standard error of the mean
+```
+
+Our z-score is at about 1.21.  If we compare it to the chart from the ppt, this not statistically significant at the .05 alpha level.  We fail to reject the null hypothesis and write up these results as follows: 
+
+With a mean grade of 73.86 in the sample of Engineering students, and assuming a true population standard deviation of 9.5, we can conclude that the Engineering students did not have significantly different statistics scores to the class average (z=1.21, N=22,  p>.05)
+
+Let's try calculating an exact p-value. We are calculating the area under the distribution curve at 1.21 and -1.21.
+
+```{r}
+options(scipen = 999)
+upper.area <- pnorm( q = z.score, lower.tail = FALSE )
+#lower tail is set to false because we want to calculate the area from 1.21 and up
+
+lower.area <- pnorm( q = -z.score, lower.tail = TRUE )
+#- is in front of the z-score and lower.tail set to true because we want to caclualte the area of the distribution from -1.21 and lower
+
+pvalue <- upper.area + lower.area
+print(pvalue)
+```
+Our p-value is .22 which is higher than .05 and we still fail to reject the null hypothesis. 
+______________________________________________________________________________________________________________________
+
+One-Tailed T-Test
+  -we cannot assume that the sd of our sample mean and population mean are the same
+  -and we don't really know what the population sd actually is
+  -instead, we are going to use the estimated population sd
+  
+```{r}
+#fist we should calculate the estimated population sd. We get this from our raw data. 
+
+sd(grades)
+sigma_hat <- sd(grades)
+```
+
+We can't say that sigma (actual population sd) is 9.5, we can say that sigma_hat (estimated population sd) is 10.38. However, now that we are estimating the population sd instead of using an exact sd, we have to use the degrees of freedom, number of observations - 1 (N-1) in our formula. R already assumes this when calculating the t-test. The larger the degrees of freedom, the closer the sample distribution will appear to the normal distribution. 
+
+```{r}
+library(lsr)
+# OneSampleTTest (x, mu) x= variable with your data, mu = the true population mean according to the null hypothesis
+
+oneSampleTTest(x=grades, mu=71.4 )
+
+```
+#Reading the Output
+   One sample t-test  
+#tells you want kind of test you ran
+
+Data variable:   grades 
+#the data that was used
+
+Descriptive statistics: 
+            grades
+   mean     73.864 #mean of the sample data
+   std dev. 10.384 #sd of the sample data
+
+Hypotheses: 
+   null:        population mean equals 71.4 
+   alternative: population mean not equal to 71.4 
+
+Test results: 
+   t-statistic:  1.113 
+   degrees of freedom:  21
+#(N-1)
+   p-value:  0.278         
+#compare to the alpha level .05, .01, .001
+
+Other information: 
+   two-sided 95% confidence interval:  [69.259, 78.468] 
+#71.4, the population mean, exisits within this interval, further indicating that the result is not statsitically significant. If the population mean was not included in this interval, it would indicate that the sample mean was statistically significantly different. 
+   estimated effect size (Cohen's d):  0.237 
+   
+# How to write this out: With a mean grade of 73.86, the Engineering students did not score statistically signficiantly above or below the average population grade of 71.4 (t(22)=1.13,p>.05); the 95% confidence interval is [69.259, 78.468]
+__________________________________________________________________________
+Suppose we were only interested in finding out if the true mean is greater than 71.4%, and have no interest whatsoever in testing to find out if the true mean is lower than 71.4%. If so, our null hypothesis would be that the true mean is 71.4% or less, and the alternative hypothesis would be that the true mean is greater than 71.4%
+
+oneSampleTTest( x=grades, mu=67.5, one.sided="greater" ), if you wanted to see if your true mean is less than mu, then you'd set one.sided to "less"
+
+```{r}
+oneSampleTTest( x=grades, mu=71.4, one.sided="greater")
+# OneSampleTTest (x, mu) x= variable with your data, mu = the true population mean according to the null hypothesis, one.sided tells r you want to set your alternative hypothesis to either be greater OR less than mu
+```
+Most important is the fact that the null and alternative hypotheses have changed, to reflect the different test. The second thing to note is that, although the t-statistic and degrees of freedom have not changed, the  
+p-value has. This is because the one-sided test has a different rejection region from the two-sided test. The third thing to note is that the confidence interval is different too: it now reports a “one-sided” confidence interval rather than a two-sided one. 
+__________________________________________________________________________
+Base R T-Test, Dr. Carpenter Example
+```{r}
+#t.test function (x = variable, mu= population mean)
+t.test( x = grades, mu = 71.4)
+```
+This version of the t-test does the exact same calculation as the oneSampleTTest, but sometimes can be a bit harder to read when first learning statistics.
+__________________________________________________________________________
+Independent Samples T-Test
+-When we have two different conditions in your study
+-research question that you’re asking is whether or not the two groups have the same population mean
+-assumes normality, population sd is the same for both groups, and the samples are independent
+__________________________________________________________________________
+
+Dr. Swift is teaching a psychology class with two Teaching Assistants, Lisa and Heather. Dr. Swift doesn't grade on a curve and we don't know anything about the overall class average, but we do have grades for Lisa's Section and Heather's section. I want to know who is the better TA or if there isn't a significant difference between the two TAs.
+Lisa has a class of 5 (N1=5) and Heather has a class of 8(N2=8).
+```{r}
+
+Test_grades1 <- c(100, 91, 87, 87, 83, 92, 95, 77, 71, 88, 89, 91, 77) 
+TA <- c("Heather","Heather","Heather","Heather","Heather","Lisa","Lisa","Lisa","Lisa","Lisa","Lisa","Lisa","Lisa")
+Avg_Test_Grades <- data.frame(TestGrades = Test_grades1, TA = TA)
+```
+
+Student's Independent Samples T-Test
+-more restrictive assumptions than the welch test
+-goal is to determine whether two “independent samples” of data are drawn from populations with the same mean (null hypothesis) or if they come from different means (alternative hypothesis)
+
+Hypotheses
+Null: H0:  mu1 = mu2 (mu is population mean)
+Alternative: H1: mu1 is not equal to mu2
+
+If the null hypothesis is true,  mu1-mu2 = 0 which also means that Xbar1 - Xbar2 also = 0 (Xbar is the sample mean)
+
+t= (Xbar1-Xbar2)/Standard Error estimate (SE)
+
+Function: independentSamplesTTest( 
+      formula = outcome ~ group,  # formula specifying outcome and group variables
+      data = data.frame,             # data frame that contains the variables
+      var.equal = TRUE          # assume that the two groups have the same variance
+  )
+
+```{r}
+independentSamplesTTest(
+  formula = TestGrades ~ TA,
+  data = Avg_Test_Grades,
+  var.equal = TRUE          
+  )
+```
+How to write this out: 
+The mean grade in Heather's class was 89.6% (std dev = 6.47), whereas the mean in Lisa’s class was 85.0% (std dev = 8.73). A Student’s independent samples t-test showed that this 4.6% difference was not significant (t(11)=1.001,  p>.05 ,CI95=[-5.418, 14.618],  d=0.576), which does not suggest that a genuine difference in learning outcomes has occurred.
+___________________________________________________________________
+Welch Test
+-When we have two different conditions in your study
+-research question that you’re asking is whether or not the two groups have the same population mean
+-assumes normality, population sd and variance is not the same for both groups, and the samples are independent
+-degrees of freedom calculated differently than in t-test
+___________________________________________________________________
+
+```{r}
+independentSamplesTTest(
+  formula = TestGrades ~ TA,
+  data = Avg_Test_Grades,
+  var.equal = FALSE          
+  )
+```
+______________________________________________________________________
+One-Sided Independent Samples Welch
+```{r}
+#here, you name the group you expect to have the higher score
+independentSamplesTTest( 
+     formula = TestGrades ~ TA,
+     data = Avg_Test_Grades, 
+     one.sided = "Heather"
+  )
+```
+Changes: The definition of the null and alternative hypotheses has changed, the  
+p-value has changed, and it now reports a one-sided confidence interval rather than a two-sided one
+
+______________________________________________________________________
+Base R Independent T-Test
+```{r}
+t.test( formula = TestGrades ~ TA, data = Avg_Test_Grades )
+#t.test function (formula = outcome ~ grouping, data = data.frame)
+
+```
+Automatically gives you the Welch test, where variances are assumed to be different. Performed the same test as the independentSamplesTTest function.  The difference between Heather and Lisa's class is still not signficantly different. 
+______________________________________________________________________
+
+______________________________________________________________________
+Paired Samples t-test
+______________________________________________________________________
+
+Dr. Perry is looking to see if student learning outcomes improve after she provides examples of effective study techniques. She administers a pre-test and a post-test. She thinks that student grades will improve after implementing these techniques. Is she right? She has 20 students in her class.
+
+Our null hypothesis, H0= muD (mean of difference) = 0
+Our Alternative hypothesis, H1 = muD does not = 0
+
+```{r}
+set.seed(100)
+Test_1_grades <- sample(65:80, 20, replace = TRUE)
+Test_2_grades <- sample(75:95, 20, replace = TRUE)
+student_ID <- c(001,002,003,004,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020)
+```
+
+```{r}
+
+Perry_Class_PSTT <- data.frame(student_ID = student_ID, Test1=Test_1_grades, Test2=Test_2_grades)
+
+Perry_Class_PSTT$Improvement <- Perry_Class_PSTT$Test2 - Perry_Class_PSTT$Test1
+#we are adding a new variable to the Perry Class data frame that shows the improvement between test 1 and test 2
+
+hist(Perry_Class_PSTT$Improvement)
+```
+Most students have improvement scores above 0, so we can see that scores mostly increased after learning the study techniques.
+
+We can also calculate the confidence interval for the population mean for the improvement variable. 
+
+```{r}
+ciMean(Perry_Class_PSTT$Improvement)
+```
+we see that it is 95% certain that the true (population-wide) average improvement would lie between 9.35% and 18.14%. These techniques really seemed to work!
+
+Paired-Samples T-test in R
+______________________________________
+Two Ways to do this:
+```{r}
+#One possibility is to follow the process I outlined above: create a “difference” variable and then run a one sample  t -test on that
+
+oneSampleTTest(Perry_Class_PSTT$Improvement, mu=0)
+#choose oneSampleTTest (data frame $ variable, mu of the null hypothesis)
+
+library(lsr)
+```
+Write Up
+
+There’s an average improvement of 13.75% from test 1 to test 2, and this is significantly different from 0 (t(19)=6.55,p<.001).
+
+Second Way to do the paired samples t test
+
+#However, let's say you don’t want to go to all the effort of creating a new variable. Or perhaps you just want to keep the difference between one-sample and paired-samples tests clear in your head. If so, you can use the pairedSamplesTTest() function, also in the lsr package
+
+pairedSamplesTTest( 
+     formula = ~ variable 2 + variable 1,       #one-sided formula listing the two variables
+     data = data frame                          # data frame containing the two variables 
+  )
+```{r}
+p8airedSamplesTTest( 
+     formula = ~ Test2 + Test1, 
+     data = Perry_Class_PSTT)
+```
+_______________________________________________________________________
+One-Sided Paired Sample T- Tests
+_______________________________________________________________________
+
+```{r}
+pairedSamplesTTest( 
+     formula = ~ Test2 + Test1, 
+     data = Perry_Class_PSTT,
+     one.sided = "Test2" 
+  )
+```
+Changes:The hypotheses have changed, the p-value has changed, and the confidence interval is now one-sided
+
+_______________________________________________________________
+ Base R Paired Samples T-Test
+ 
+ t.test( x = dataframe$variable 1   # variable 1 is the "test2" scores
+         y = dataframe$variable 2,   # variable 2 is the "test1" scores
+         paired = TRUE                  # paired test
+ )
+ 
+ 
+ ```{r}
+ t.test( x = Perry_Class_PSTT$Test2,  
+         y = Perry_Class_PSTT$Test1,   
+         paired = TRUE)
+ ```
+ Paired t-test
+
+data:  Perry_Class_PSTT$Test2 and Perry_Class_PSTT$Test1
+t = 6.5516, df = 19, p-value = 2.839e-06
+alternative hypothesis: true mean difference is not equal to 0
+95 percent confidence interval:
+  9.357339 18.142661
+sample estimates:
+mean difference 
+          13.75 
+
+citation:Danielle Navarro (bookdown translation: Emily. n.d. Learning Statistics with R: A Tutorial for Psychology Students and Other Beginners. (Version 0.6.1). Accessed October 22, 2024. https://learningstatisticswithr.com/book/.
+
+

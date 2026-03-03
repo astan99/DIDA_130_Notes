@@ -1,0 +1,54 @@
+________________________
+Topic 8: Comparing 2 means Class Activity
+________________________
+
+```{r}
+library(lsr)
+library(dplyr)
+```
+
+You are teaching a history class and you want to know if students learned more about history after taking the class. You administer a pre-test at the beginning of the course and a post-test at the end of the course asking them the same question about history. You predict that there was a change in scores.
+
+Using the data in the code provided, complete the rest of the questions
+
+```{r}
+set.seed(100)
+hist_grades <- data.frame(student = c(1:20),
+                          pre = round(rnorm(20, mean = 70, sd = 8), digits = 0),
+                          post = round(rnorm(20, mean = 76, sd = 10), digits=0))
+```                          
+
+1) What is your null (H0) and what is your alternative hypotheses (H1)
+
+The null is that there is no change between scores. The alternative is that there is a change between scores. 
+
+2) create a column in your dataframe that shows the improvement between the pre and post scores.
+```{r}
+hist_grades <- hist_grades %>% 
+  mutate(improve = post - pre)
+
+hist_grades$improve <- hist_grades$post-hist_grades$pre
+```  
+3)Using a one sample t-test, was the post test significantly different from the pre test What would you include in the writeup?
+```{r}
+
+oneSampleTTest(hist_grades$improve, mu=0)
+
+#Based on the results of a one sample Welch test, There’s an average improvement of 6.2 points from test 1 to test 2, and this is significantly different from 0 (t(19)=7.57,p<.01). 
+```
+4)Using a paired samples t-test, was the post test significantly different from the pre test.
+
+```{r}
+pairedSamplesTTest( 
+     formula = ~ post + pre, 
+     data = hist_grades)
+
+#Yes, the post test was statistically signifcantly different than the pre test. 
+```
+5) Let's say that you have to submit a report to the chair of your department about the value of your history class. How could you interpret these results in your report.
+
+Based on the results of a one sample Welch test, There’s an average improvement of 6.2 points from test 1 to test 2, and this is significantly different from 0 (t(19)=7.57,p<.01). These results mean that after taking my course, students learned more about history after taking the class than they knew going into the class. 
+
+6) If this were a real experiment, what confounding variables (variables that you did not account for in your experiment) do you think could influence your results?
+
+

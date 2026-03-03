@@ -1,0 +1,171 @@
+---
+title: "Midterm Review Topics 1-6"
+output: html_notebook
+---
+
+This review contains material that will be similar to what will be on the midterm for topics 1-6. The midterm will contain questions with multiple parts and you may need to use material from multiple topics within the same question. Review questions for topics 7 and 8 will be posted for Thursday. 
+_________________
+Part 1 
+_________________
+
+1) We are tracking the number of clients that enter a salon during the week. 
+
+Monday 10
+Tuesday 5
+Wednesday 12
+Thursday 15
+Friday 20
+
+Create a vector for the number of clients for the week and a vector for the days of the week
+
+```{r}
+
+```
+_______________________________________________________________________
+2) Which days had more than 14 clients. Show your work using the method from Topic 1
+```{r}
+
+```
+_______________________________________________________________________
+3) We made a mistake with the number of clients on Wednesday. There were actually 16 clients. Change the vector you made for the week of clients using the elements method
+
+```{r}
+
+```
+_______________________________________________________________________
+4) Using the method from Topic 1, which days of the week had clients less than 13 and more than 17 clients
+```{r}
+
+```
+_______________________________________________________________________
+5) Create a data frame tracking information about the clients. 
+
+use the vectors you made for days of the week and for then number of clients and the vectors below
+
+      
+      services <- c("haircut", "blowout", "coloring", "haircut", "blowout")
+      daily_revenue <- c(150, 240, 180, 225, 300)
+
+```{r}
+
+```
+_________________
+Part 2 
+_________________
+```{r}
+setwd
+occupation_data <- read.csv("occupation_data.csv")
+
+library(dplyr)
+library(lsr)
+library (ggplot2)
+
+```
+In this section, you will be acting as a data analyst to find out some important information about a dataset. The US government is concerned about income and gender inequality in the US labor force, and you have been hired to investigate this. The following questions will help you gain crucial information about the US labor force. 
+
+6) (5 pts)
+
+a) Create a histogram for this data for the variable All_workers. Make your fill color white and your outline black 
+
+```{r}
+
+```
+
+b) using 1 function, what is the mean for this variable?
+
+```{r}
+
+```
+c) using 1 function, what is the median for this variable?
+
+```{r}
+
+```
+d) why is the mean higher than the median? what does it suggest about the data?
+
+ 
+_______________________________________________________________________
+
+7) (5pts)
+
+a) Create a summary table grouped by occupation_category.  Create a dataframe to show how many female workers are in each occupation_category. Arrange in descending order of amount of female workers *hint, include na.rm = T to filter out any missing data*
+
+```{r}
+
+```
+
+b) which category has the highest amount of female workers and which has the lowest amount of female workers?
+
+
+c) what is the mean amount of female workers based on occupation category
+```{r}
+
+```
+_______________________________________________________________________
+
+8) (5pts) Add a variable to the data frame you made for female occupation that looks at the average percentage of female workers in each occupation category.  
+
+```{r}
+
+```
+_______________________________________________________________________
+9) (5 pts) Using the filter function on your female occupation data frame, which occupational categories have a majority of female workers (above 50% female workers)? List the names of the categories and show the code used to find the occupations
+
+```{r}
+
+```
+_________________
+Part 3 
+_________________
+
+10) (5pts) Using the original dataframe which contained 535 objects and 9 variables, create a table that summarizes the following statics across the different numerical variables: mean, median, min, max, and interquartile range. Make sure that your table is labeled in both the columns and rows.
+
+*hint create a new ungrouped data frame based on the original dataframe.*
+
+*At the end of each line of code for the descriptive statistics add ,na.rm =T after the period in parentheses EXAMPLE ~descriptive_stat(.,na.rm =T), eg ~mean(.,na.rm=T).*
+
+*Use the rbind function to create the table*
+
+```{r}
+
+```
+
+_______________________________________________________________________
+11) (5pts) The occupation "Farmers, ranchers, and other agricultural managers" have 23 out of 129 female workers, making their workforce about 18% female. When calculating the mean and sd, you will need to add ,na.rm = T after you select the variable
+
+a) How do they compare against the percent mean of all female workers in terms of z-score? Is this an outlier occupation? 
+
+```{r}
+ 
+```
+
+b) What percentile does this occupation rank? Assume we have a normal distribution
+```{r}
+
+```
+_________________
+Part 4
+_________________
+Discuss your findings from this dataset. Your answer for EACH question should be between 200-400 words.
+
+12) What did you learn about employment in your chosen category by gender? Is there a gender income gap or employment disparity?
+
+_______________________________________________________________________
+13)Is anything missing from this analysis? As a data analyst, what kinds of data or topics would you want to add to this project?
+
+_________________
+Bonus
+_________________
+You have a set of 60 marbles 5 blue, 10 green, 15 red, 5 yellow, 25 purple.
+
+Find the following:
+
+a) create a table that shows the proportion of colors in the bag of marbles
+```{r}
+
+```
+
+b)You pull a sample of 12 marbles, what is the combination if you set the seed to 48
+```{r}
+
+```

@@ -1,0 +1,41 @@
+Topic 8: Comparing 2 means Class Activity
+
+```{r}
+library(lsr)
+library(dplyr)
+```
+
+You are teaching a history class and you want to know if students learned more about history after taking the class. You administer a pre-test at the beginning of the course and a post-test at the end of the course asking them the same question about history. You predict that there was a change in scores.
+
+Using the data in the code provided, complete the rest of the questions
+
+```{r}
+set.seed(100)
+hist_grades <- data.frame(student = c(1:20),
+                          pre = round(rnorm(20, mean = 70, sd = 8), digits = 0),
+                          post = round(rnorm(20, mean = 76, sd = 10), digits=0))
+```                          
+
+1) What is your null (H0) and what is your alternative hypotheses (H1)
+
+
+
+2) create a column in your dataframe that shows the improvement between the pre and post scores.
+```{r}
+
+```  
+3)Using a one sample t-test, was the post test significantly different from the pre test? What would you include in the writeup?
+```{r}
+
+```
+4)Using a paired samples t-test, was the post test significantly different from the pre test?
+
+```{r}
+
+```
+5) Let's say that you have to submit a report to the chair of your department about the value of your history class. How could you interpret these results in your report.
+
+
+6) If this were a real experiment, what confounding variables (variables that you did not account for in your experiment) do you think could influence your results?
+
+

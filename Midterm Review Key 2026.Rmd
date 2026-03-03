@@ -1,0 +1,229 @@
+---
+title: "Midterm Review Topics 1-6"
+output: html_notebook
+---
+This review contains material that will be similar to what will be on the midterm for topics 1-6. The midterm will contain questions with multiple parts and you may need to use material from multiple topics within the same question. Review questions for topics 7 and 8 will be posted for Thursday. 
+_________________
+Part 1 
+_________________
+
+1) We are tracking the number of clients that enter a salon during the week. 
+
+Monday 10
+Tuesday 5
+Wednesday 12
+Thursday 15
+Friday 20
+
+Create a vector for the number of clients for the week and a vector for the days of the week
+
+```{r}
+client_week <- c(10, 5, 12, 15, 20)
+week <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+```
+_______________________________________________________________________
+2) Which days had more than 14 clients. Show your work using the method from Topic 1
+```{r}
+week[client_week > 14]
+```
+_______________________________________________________________________
+3) We made a mistake with the number of clients on Wednesday. There were actually 16 clients. Change the vector you made for the week of clients using the elements method
+
+```{r}
+client_week[3] <- 16
+```
+_______________________________________________________________________
+4) Using the method from Topic 1, which days of the week had clients less than 13 but more than 17
+```{r}
+week[client_week > 17 | client_week < 13 ]
+```
+_______________________________________________________________________
+5) Create a data frame tracking information about the clients. 
+
+use the vectors you made for days of the week and for then number of clients and the vectors below
+
+      
+      services <- c("haircut", "blowout", "coloring", "haircut", "blowout")
+      daily_revenue <- c(150, 240, 180, 225, 300)
+
+```{r}
+services <- c("haircut", "blowout", "coloring", "haircut", "blowout")
+daily_revenue <- c(150, 240, 180, 225, 300)
+
+salon_information <- data.frame(week, client_week, services, daily_revenue)
+```
+_________________
+Part 2 
+_________________
+```{r}
+setwd
+occupation_data <- read.csv("occupation_data.csv")
+
+library(dplyr)
+library(lsr)
+library (ggplot2)
+
+```
+In this section, you will be acting as a data analyst to find out some important information about a dataset. The US government is concerned about income and gender inequality in the US labor force, and you have been hired to investigate this. The following questions will help you gain crucial information about the US labor force. 
+
+6) (5 pts)
+
+a) Create a histogram for this data for the variable All_workers. Make your fill color white and your outline     black 
+
+```{r}
+ggplot(occupation_data, aes(x = All_workers))+
+  geom_histogram (fill= "white", color = "black")+
+  geom_vline(xintercept = 63, color = "blue")+
+  geom_vline(xintercept = 204, color = "red")+
+  theme_minimal()
+
+ggplot(occupation_data, aes(x = All_workers))+
+  geom_histogram (fill= "white", color = "black")+ theme_minimal()
+```
+
+b) using 1 function, what is the mean for this variable?
+
+```{r}
+mean(occupation_data$All_workers)
+```
+c) using 1 function, what is the median for this variable?
+
+```{r}
+median(occupation_data$All_workers)
+```
+d) why is the mean higher than the median? what does it suggest about the data?
+
+It suggests that there are outliers pulling the mean in a positive direction. It suggests that the median may be more representative of the data. 
+_______________________________________________________________________
+
+7) 
+
+a) Create a summary table grouped by occupation_category.  Create a dataframe to show how many female workers are in each occupation_category. Arrange in descending order of amount of female workers *hint, include na.rm = T to filter out any missing data*
+
+```{r}
+Female_Occupation <- occupation_data %>%
+  group_by(occupation_category) %>%
+  summarise (women_workers = sum(F_workers, na.rm = T))
+
+Female_Occupation <- Female_Occupation  %>% arrange(desc(women_workers))
+```
+
+b) which category has the highest amount of female workers and which has the lowest amount of female workers?
+highest = office
+lowest = construction
+
+c) what is the mean amount of female workers based on occupation category
+```{r}
+mean(Female_Occupation$women_workers)
+```
+_______________________________________________________________________
+
+8) Add a variable to the data frame you made for female occupation that looks at the average percentage of female workers in each occupation category.  
+
+
+
+```{r}
+#note to self
+  #1)you need to add a column to the occupation data
+  #2)Then you are going to group by category.
+  #3)Then you will summarize the total female workers for each category (so it is adding up all female workers in each category)
+  #4)Then you are going to take the average of the percent of female workers in each category (ex so if the percent for occupation 1 is .3, occ2 is .8, and occ3 is .2, the average occ percentage is .43)
+
+occupation_data1 <- occupation_data %>% mutate (percent_women = F_workers/All_workers)
+
+Female_Occupation <- occupation_data1 %>%
+  group_by(occupation_category) %>%
+  summarise(women_workers = sum(F_workers, na.rm = T),
+            percent_women_occ = mean(percent_women, na.rm = T))
+```
+_______________________________________________________________________
+9) Using the filter function on your female occupation data frame, which occupational categories have a majority of female workers? List the names of the categories and show the code used to find the occupations
+
+```{r}
+Female_Occupation %>% filter(percent_women_occ > .5)
+#business, culinary, education, healthcare professional, healthcare support, legal, office, social service
+```
+_________________
+Part 3 
+_________________
+
+10) Using the original dataframe which contained 535 objects and 9 variables, create a table that summarizes the following statics across the different numerical variables: mean, median, min, max, and interquartile range. Make sure that your table is labeled in both the columns and rows.
+
+*hint create a new ungrouped data frame based on the original dataframe.*
+
+*At the end of each line of code for the descriptive statistics add ,na.rm =T after the period in parentheses EXAMPLE ~descriptive_stat(.,na.rm =T), eg ~mean(.,na.rm=T).*
+
+*Use the rbind function to create the table*
+
+```{r}
+sum_stats_occupation <- occupation_data %>% 
+  select(c(Occupation:F_weekly)) %>% 
+  ungroup()
+  
+mean_occ <- sum_stats_occupation %>% summarise(across(c(All_workers:F_weekly,), ~mean(.,na.rm = T)))
+median_occ <-sum_stats_occupation %>% summarise(across(c(All_workers:F_weekly), ~median(.,na.rm = T)))
+min_occ <- sum_stats_occupation %>% summarise(across(c(All_workers:F_weekly), ~min(.,na.rm = T)))
+max_occ <- sum_stats_occupation %>% summarise(across(c(All_workers:F_weekly), ~max(.,na.rm = T)))
+iqr_occ <- sum_stats_occupation %>% summarise(across(c(All_workers:F_weekly), ~IQR(.,na.rm = T)))
+
+sum_stats_occupation <- rbind(mean_occ, median_occ, min_occ, max_occ, iqr_occ)
+
+rownames(sum_stats_occupation) <- c("mean", "median", "min", "max", "iqr")
+```
+
+_______________________________________________________________________
+11)The occupation "Farmers, ranchers, and other agricultural managers" have 23 out of 129 female workers, making their workforce about 18% female. When calculating the mean and sd, you will need to add ,na.rm = T after you select the variable
+
+a) How do they compare against the mean percent of all female workers in terms of z-score? Is this an outlier occupation?
+
+```{r}
+
+mean <- mean(occupation_data1$percent_women,na.rm = T)
+sd <- sd(occupation_data1$percent_women,na.rm = T)
+
+(0.1782946-mean)/sd
+#we are -.6106229 deviations from the mean, so they are still within the majority of the data. No it is not an outlier. 
+```
+
+b) What percentile does this occupation rank? Assume we have a normal distribution
+```{r}
+pnorm(-0.6106229)
+#they rank in the 27th percentile, meaning they score higher than 27% of other occupations. No they are not an outlier
+```
+_________________
+Part 4
+_________________
+Discuss your findings from this dataset. Your answer for EACH question should be between 200-400 words.
+
+12) What did you learn about employment in your chosen category by gender? Is there a gender income gap or employment disparity?
+
+_______________________________________________________________________
+13)Is anything missing from this analysis? As a data analyst, what kinds of data or topics would you want to add to this project?
+
+_________________
+Bonus 
+_________________
+You have a set of 60 marbles 5 blue, 10 green, 15 red, 5 yellow, 25 purple.
+
+Find the following:
+
+a) create a table that shows the proportion of colors in the bag of marbles
+```{r}
+
+```
+
+b)You pull a sample of 12 marbles, what is the combination if you set the seed to 48
+```{r}
+
+```
+
+
+```{r}
+
+#a
+marbles <- rep(c("blue", "green", "red", "yellow", "purple"), time = c(5, 10, 15, 5, 25))
+prop.table(table(marbles))
+
+#b
+set.seed(48)
+sample(marbles, 12)
