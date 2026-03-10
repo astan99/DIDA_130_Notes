@@ -19,23 +19,24 @@ Friday 20
 Create a vector for the number of clients for the week and a vector for the days of the week
 
 ```{r}
-
+clients <- c(10, 5, 12, 15, 20)
+day <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 ```
 _______________________________________________________________________
 2) Which days had more than 14 clients. Show your work using the method from Topic 1
 ```{r}
-
+day[clients > 14]
 ```
 _______________________________________________________________________
 3) We made a mistake with the number of clients on Wednesday. There were actually 16 clients. Change the vector you made for the week of clients using the elements method
 
 ```{r}
-
+clients[3] <- 16
 ```
 _______________________________________________________________________
 4) Using the method from Topic 1, which days of the week had clients less than 13 and more than 17 clients
 ```{r}
-
+day[clients < 13 | clients > 17]
 ```
 _______________________________________________________________________
 5) Create a data frame tracking information about the clients. 
@@ -47,13 +48,13 @@ use the vectors you made for days of the week and for then number of clients and
       daily_revenue <- c(150, 240, 180, 225, 300)
 
 ```{r}
-
+salon <- data.frame(day, clients, services, daily_revenue)
 ```
 _________________
 Part 2 
 _________________
 ```{r}
-setwd
+setwd("/Users/aidenstanton/projects/R")
 occupation_data <- read.csv("occupation_data.csv")
 
 library(dplyr)
@@ -68,18 +69,19 @@ In this section, you will be acting as a data analyst to find out some important
 a) Create a histogram for this data for the variable All_workers. Make your fill color white and your outline black 
 
 ```{r}
-
+ggplot(occupation_data, aes(All_workers)) +
+  geom_histogram(fill = "white", color="black")
 ```
 
 b) using 1 function, what is the mean for this variable?
 
 ```{r}
-
+mean(occupation_data$All_workers)
 ```
 c) using 1 function, what is the median for this variable?
 
 ```{r}
-
+median(occupation_data$All_workers)
 ```
 d) why is the mean higher than the median? what does it suggest about the data?
 
