@@ -1,0 +1,50 @@
+---
+Topic 7
+
+---
+
+```{r}
+library(lsr)
+library(dplyr)
+```
+
+
+____________
+Topic 7
+____________
+
+1) What is a p-value? Why can't you just report the p-value of your data/variable?
+
+A number from 0 to 1 indicating the probability of getting a specific result
+_________________________________________________________________________________________________
+2) What is the difference between type 1 and type 2 error?
+
+Type 1 errors are seen as bigger errors occur when we reject a value that is actually true while a type 2 is rejecting a value while the alternate hypothesis is true
+
+__________________________________________________________________________________________________
+
+3) At which alpha/critical regions is this p-value significant? 
+
+0.05
+0.01
+0.001
+____________________________________________________________________________________________________
+
+I am rolling one 12-sided die 18 times. I roll an 11  6/18 times. Design a test to show whether or not the die is fair and report your results.
+
+
+1) What is the alternate hypothesis and what is the null hypothesis?
+Null hypothesis is that you should roll an 11 every 1/12 times
+the alternate hypothesis is that you will roll it more or less than every 1/12 times
+
+
+2) Design the test to show your results
+
+```{r}
+binom.test(6, 18, p = (1/12))
+```
+
+3)Using a significance level of .05, Can we reject the null hypothesis
+No because our value is higher than .05
+
+__________________________________________________________________________________________________
