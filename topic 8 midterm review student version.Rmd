@@ -1,0 +1,121 @@
+
+____________
+Topic 8 Midterm Review Student Version
+____________
+
+```{r}
+library(lsr)
+library(dplyr)
+```
+
+Scenario 1: You are teaching a math class and you want to know if students learned more about math after taking the class. You administer a pre-test at the beginning of the course and a post-test at the end of the course asking them the same math questions. You predict that there was a change in scores.
+
+Using the data in the code provided, complete the rest of the questions in scenario 1
+
+```{r}
+set.seed(25)
+math_grades <- data.frame(student = c(1:20),
+                          pre = round(rnorm(20, mean = 70, sd = 8), digits = 0),
+                          post = round(rnorm(20, mean = 76, sd = 10), digits=0))
+```
+
+1)What is your null (H0) and what is your alternative hypotheses (H1)
+The null is that there is no change between the scores and the alternative is that there is a change
+
+2)Are the post test grades significantly different than the pre-test? Show both ways to analyze the results. 
+
+A
+```{r}
+pairedSamplesTTest( 
+     formula = ~ post + pre, 
+     data = math_grades)
+
+```
+
+B
+```{r}
+math_grades <- math_grades %>% 
+  mutate(improve = post - pre)
+
+math_grades$improve <- math_grades$post-math_grades$pre
+```
+
+C
+
+```{r}
+oneSampleTTest(math_grades$improve, mu=0)
+```
+ p value is less than 0.05 so the test scores are significantly different
+3) Let's say that you have to submit a report to the chair of your department about the value of your math class. How could you interpret these results in your report?
+
+4) What confounding variables might be influencing the results of your experiment?
+
+___________________________________________________________________________________________________
+Scenario 2: Z-Test
+
+Professor Juan has an intro film course with hundreds of students.  The overall class average is 82.7 with a standard deviation of 12. Prof. Juan also grades the class on a curve, so it is normally distributed.  In that class there are 20 students from Theater Arts.  Are the engineering students scoring the same as everyone else or are they scoring higher or lower?
+
+Theatre_Grades<- c(60, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 95, 95, 95, 95, 90, 90, 95, 100, 100) 
+
+
+1) What is the mean of the sample
+```{r}
+mean(Theatre_Grades)
+```
+2) Create Objects for each part of the z-test formula
+
+```{r}
+Xbar_sample_mean <- 88.75
+mu.null <- 82.7
+N <- 20
+sigma <- 12
+```
+
+3) What is your null and alternate hypothesis?
+null hypothesis is that mu is = to 82.7
+alternative is that it is not
+
+
+4) Calculate the Standard Error of the Mean (SEM) 
+
+The SEM is when we could take the mean of multiple sample drawings and create the sampling distribution of the mean. The standard error of the mean is the average distance between the population mean and the sample means.
+
+```{r}
+SEM <- sigma/sqrt(N)
+SEM
+```
+
+5) Calculate the z-score
+
+```{r}
+z_score = (Xbar_sample_mean-mu.null)/SEM
+z_score
+
+
+```
+
+
+6) compare it to the z-score chart in the Topic 8 ppt. Is it significant?
+
+This is not significant therefore the scores werent significantly different from the average
+
+
+7) Using the z-score, calculate the p-value
+
+```{r}
+options(scipen = 999)
+upper.area <- pnorm(z_score, lower.tail = FALSE)
+
+lower.area <- pnorm(-z_score, lower.tail = TRUE)
+
+pvalue <- upper.area + lower.area
+pvalue
+
+
+```
+
+
+
+
+
+

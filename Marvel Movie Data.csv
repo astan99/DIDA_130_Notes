@@ -1,0 +1,31 @@
+﻿film,category,% budget recovered,critics % score,audience % score,budget ($m),domestic gross ($m),international gross ($m),opening weekend ($m),year
+Ant-Man  ,Ant-Man,3.984615385,0.83,0.85,130,180,338,57,2015
+Ant-Man & The Wasp,Ant-Man,4.792307692,0.87,0.8,130,216,406,75.8,2018
+Avengers: Age of Ultron,Avengers,3.821917808,0.76,0.82,365,459,936,191,2015
+Avengers: End Game,Avengers,6.9925,0.94,0.9,400,858,1939,357,2019
+Avengers: Infinity War,Avengers,6.826666667,0.85,0.91,300,678,1369,257,2018
+Black Panther,Black Panther,6.68,0.96,0.79,200,700,636,202,2018
+Black Panther 2,Black Panther,3.42,0.84,0.94,250,453,401,181,2022
+Black Widow,Unique,1.895,0.79,0.8,200,183,196,80.3,2021
+Captain America,Captain America,2.642857143,0.79,0.75,140,176,193,65,2011
+Captain America: Civil War,Captain America,4.604,0.9,0.89,250,408,743,179,2016
+Captain America: Winter Soldier,Captain America,4.2,0.9,0.92,170,259,454,95,2014
+Captain Marvel,Unique,6.451428571,0.79,0.45,175,426,702,153,2019
+Dr Strange,Dr Strange,4.096969697,0.89,0.86,165,232,443,85,2016
+Dr Strange: Multiverse of Madness,Dr Strange,4.76,0.74,0.77,200,411,540,187,2022
+Eternals,Unique,2.01,0.47,0.73,200,164,237,71,2021
+Guardians of the Galaxy,Guardians,4.529411765,0.92,0.92,170,333,437,94,2014
+Guardians of the Galaxy 2,Guardians,4.345,0.85,0.87,200,389,479,146,2017
+Incredible Hulk,Unique,1.927272727,0.67,0.69,137.5,134,130,55,2008
+Iron Man,Iron Man,3.14516129,0.94,0.91,186,318,266,102,2008
+Iron Man 2,Iron Man,3.652941176,0.71,0.71,170,312,308,128,2010
+Iron Man 3,Iron Man,6.075,0.79,0.78,200,408,806,174,2013
+Shang-Chi,Unique,2.88,0.91,0.93,150,224,207,75,2021
+Spider-Man: Far from Home,Spider-Man,7.075,0.9,0.93,160,390,741,93,2019
+Spider-Man: Homecoming,Spider-Man,5.017142857,0.92,0.87,175,334,544,117,2017
+Spider-Man: No Way Home,Spider-Man,9.555,0.93,0.96,200,814,1097,260,2021
+The Avengers,Avengers,6.733333333,0.91,0.91,225,623,891,207,2012
+Thor: Dark World,Thor,4.293333333,0.66,0.75,150,206,438,85,2013
+Thor: Love & Thunder,Thor,2.98,0.64,0.63,250,343,403,144,2022
+Thor: Ragnarok,Thor,4.722222222,0.93,0.87,180,315,535,122,2017
+Thor,Thor,2.993333333,0.77,0.76,150,181,268,65,2011

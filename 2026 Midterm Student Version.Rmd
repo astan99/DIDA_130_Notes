@@ -1,0 +1,210 @@
+Title: 2026 Midterm Student Version
+____________________________________________________________________________________________________
+Description: This exam covers material from topics 1-8. Some questions will have multiple parts, so please be sure to answer each part of the question. You will need to have the lsr, dplyr, and ggplot packages installed. You are allowed to use code from outside of the course to answer the questions, *HOWEVER, any outside code needs to be cited*. If the code does not align with what we used in class or does not have a citation, then it will be marked as incorrect on the exam. Write out the code used for each question, *DO NOT just write the answer without showing the code used.* While this exam is open note/open book, you are expected to complete it by yourself. 
+____________________________________________________________________________________________________
+Make sure to run these libraries
+
+```{r}
+library(lsr)
+library(ggplot2)
+library(dplyr)
+
+```
+___________________________________________________________________________________________________
+_________________
+Part 1 (5pts)
+_________________
+
+1) We are tracking the number of students buying tickets to the Spring Fling Concert throughout the week. 
+
+Monday 100
+Tuesday 75
+Wednesday 10
+Thursday 200
+Friday 50
+
+Create a vector for the number of students for each day and a vector for the days of the week
+
+```{r}
+Students <- c(100, 75, 10, 200, 50)
+Day <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+```
+_______________________________________________________________________
+2) Which days had more than 60 students buying tickets? Show your work using the method from Topic 1
+```{r}
+Day[Students > 60]
+```
+_______________________________________________________________________
+
+3) The tickets cost $45.50 for each student. Make a vector to show the daily revenue in ticket sales. 
+
+```{r}
+Sales <- Students*45.50
+```
+_______________________________________________________________________
+4) Create a data frame for the vectors you made in questions 1 and 3.
+      
+
+
+```{r}
+Concert <- data.frame(Students, Day, Sales)
+```
+_________________________________________________________________________
+
+5) What is the total amount of revenue earned for the ticket sales for the full week?
+
+```{r}
+sum(Sales)
+```
+
+_________________
+Part 2
+_________________`
+
+6) You have a set of 82 marbles: 42 blue, 18 green, 12 red, 10 yellow.
+
+Find the following:
+
+a) create a table that shows the proportion of colors in the bag of marbles
+```{r}
+marbles <- rep (c("Blue", "Green", "Red", "Yellow"), time = c(42, 18, 12, 10))
+prop.table(table(marbles))
+```
+
+b)You pull a sample of 8 marbles, what is the combination if you set the seed to 79
+```{r}
+set.seed(79)
+sample(marbles, 8)
+```
+_________________
+Part 3
+
+Please use the dataset "mario sales.csv " to answer the following questions
+https://data.world/makeovermonday/2026w10-mario-game-sales
+_________________
+
+
+```{r}
+setwd("/Users/aidenstanton/projects/R")
+mario_sales <- read.csv("mario sales.csv")
+```
+_________________________________________________________________________
+
+7) I only want to see the data for all consoles. Make a new data frame that shows the data only for the group "all consoles" 
+
+```{r}
+Console_data <- filter(mario_sales, Console =="All Consoles")
+
+```
+_________________________________________________________________________
+8) Using this new data frame, create a line and point graph that shows the change in unit sales over time. Make sure you have axis labels and a title. Make the points black and the line red. 
+
+
+```{r}
+
+```
+___________________________________________________________________________
+
+9) Using the original mario_sales data frame with 87 objects and 5 variables Create a new dataframe that shows the average Gross sales by Console. 
+
+a)
+```{r}
+
+```
+
+b)Which consoles had the higest and lowest gross sales ? (ignore the data for "all consoles" and "Switch 2")
+
+
+___________________________________________________________________________
+
+10) The console "Wii" has an average gross revenue of $585,714,286. 
+
+a) How do they compare against the mean of all consoles in terms of z-score? Is this an outlier console?
+
+```{r}
+
+```
+
+b) What percentile does this occupation rank? Assume we have a normal distribution
+```{r}
+
+```
+___________________________________________________________________________
+
+_________________
+Part 4
+
+Please use the dataset "Marvel Movie Data.csv " to answer the following questions
+https://data.world/makeovermonday/what-is-the-best-performing-marvel-movie
+_________________
+
+
+```{r}
+setwd
+Marvel <- read.csv("Marvel Movie Data.csv")
+```
+
+11) Create a new dataframe that summarizes mean, median, max, min, and sd for the Category of Marvel Movie. It should include the  for the variables "budget...m.", "domestic.gross...m" "international.gross...m."
+
+```{r}
+
+
+```
+12) 
+
+We want to compare the average domestic gross for the Avengers movies to the average domestic gross of all Marvel movies.  The average for all marvel movies between 2008 and 2022 is 370.9 Million with an SD of 193.9 Million. Was the average domestic gross for the Avengers films significantly higher or lower than the average of all films? Use a kind of t-test
+
+*hint: build a dataframe from the original marvel data filtered by the specific category
+
+
+```{r}
+mean(Marvel$domestic.gross...m.)
+sd(Marvel$domestic.gross...m.)
+```
+```{r}
+
+
+```
+13) Write your final results as though you are publishing in a journal article
+______________________________________________________________________________________
+
+______________________________________________________________________________________
+14) Let's say I am presenting my data to the head of Marvel Studios. They want to know if they should make another Avenger's film. What could you tell them based on your analysis of the Avenger's movies?
+
+______________________________________________________________________________________
+
+______________________________________________________________________________________
+
+15)Is anything missing from this analysis? As a data analyst, what kinds of data or topics would you want to add to this project?
+
+______________________________________________________________________________________
+
+______________________________________________________________________________________
+
+___________________________
+*Bonus*
+Worth three percentage points total on the midterm, eg 89 would become a 92. 
+___________________________
+
+I am tracking average plant growth for tomatoes in my garden. 
+
+plant<- c(3, 6, 12, 10, 1, 4, 6, 13)
+
+a)Based on this data, and assuming a normal distribution, what is the probability that a random plant from the population where this sample comes from is 11 inches tall or shorter?
+
+```{r}
+
+
+```
+b) #What is the probability that a random plant from this population is between 8 and 12 inches tall?
+
+```{r}
+
+
+```
+
+c)#What about the probability that a random plant from this population where the sample comes from is taller than 13 inches?
+
+```{r}
+
+```

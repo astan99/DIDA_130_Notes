@@ -1,0 +1,287 @@
+---
+title: Topic 9: Comparing Several Means
+output: html_notebook
+---
+Let's start by loading in our example experimental data
+
+```{r}
+library(dplyr)
+library(lsr)
+
+setwd("/Users/aidenstanton/projects/R")
+Plant_Data <- read.csv("week9_data.csv")
+
+#Let's take a look at our data frame. We have have the 3 groups, 8 plants in each group (N=24), and the outcome values for growth.
+```
+```{r}
+#next we are going to find the means for each group using the group by and summarize functions and turn this into a new data frame called group_means
+group_means <- Plant_Data %>% 
+  group_by(Group) %>% 
+  summarise(group_mean = mean(Outcome))
+
+group_means
+```
+Let's calculate an ANOVA now!Step by Step:
+```{r}
+
+#Step 1: Find and store each plant's deviation from its group mean and square it
+
+Plant_Data <- Plant_Data %>% 
+  group_by(Group) %>% 
+  mutate(deviation = Outcome - mean(Outcome)) %>% 
+  mutate(sq_deviation = deviation^2)
+#We are updating the Plat_Data dataframe by adding two columns(variables) one is called deviation which is generated from the outcome of each data point(each of the 24 plants) minus the mean of each group (eg, Value of Plant1,Group1- Mean of Group 1)  and a column for the squared deviation which will take the new mutated column, deviation, and square it
+
+#let's see if this worked. I'm going to choose plant 1,group1(none) and subtract the mean from it. 
+#Plant 1 from None category, the outcome was 0
+#The mean of group 1 is 1.625
+#the deviation would be -1.625
+#-1.625^2 = 2.64...
+0-1.625
+(-1.625)^2
+#just a note, if you are squaring negative numbers in R, put them in parentheses first or else it will add the negative to result.
+
+Plant_Data
+
+```
+To calculate the within-group Sum of Squares, we can just sum the sq_deviation column
+
+```{r}
+within_group_plant <- sum(Plant_Data$sq_deviation)
+#object <- sum(dataframe$sq_deviation column)
+
+within_group_plant
+```
+For the between group deviations, we need to:
+1) Find the deviation of each group mean from the sample mean
+2) Square them
+3) The between group variation is essentially a weighted mean of the group-squared deviations (don't worry if you don't quite know what this means!). So we'll need to multiply these squared values by the group size
+4) Finally, we sum up the weighted squared deviations
+
+Let's see what this looks like!
+
+```{r}
+#Find the sample mean 
+samp_mean_plant <- mean(Plant_Data$Outcome)
+#this is the mean for all 24 plants in our experiment
+
+
+#Calculate deviations and square. This is why we found the group means at the beginning
+group_means <- group_means %>% 
+  mutate(deviations = group_mean - samp_mean_plant) %>% 
+  #Square it!
+  mutate(sq_deviations = deviations^2) %>% 
+  #Calculate weighted squared deviations
+  mutate(weight_dev = sq_deviations*8) 
+
+#updating the group means dataframe by adding a column called deviations which is equal to the values in group_means - the sample mean, then we are adding a column called squared deviations where we take the deviations column and square it, then we are created the weighted deviations which are the squared deviations from the previous column multiplied by the group size, 8)
+
+#Let's just double check this for one group
+#Amazing Grow Mean = 3.75, Sample Mean is 2.708
+#DevaiationAGM= 3.75-2.708 = 1.042
+#Squared Deviation AGM = 1.042^2 = 1.085764
+#weighted Deviation AGM= 1.085764*8 = 8.686
+
+#Ok, Now add it up to get the between group value!
+between_group_plant <- sum(group_means$weight_dev)
+#object <- sum of the weighted deviations column from the group means dataframe
+between_group_plant
+```
+Now we can calculate our degrees of freedom (DF)! Remember that:
+
+SS-within DF = N - G (number of observations minus the number of grops)
+SS-between DF = G - 1 (number of groups minus 1)
+
+So, we have DF-within = 24 - 3 = 21
+DF-between = 3-1 = 2
+
+Let's calculate our mean sum of squares now!
+
+```{r}
+
+mssw <- within_group_plant/21
+#mean sum of squares within
+
+mssb <- between_group_plant/2
+#mean sum of squares between
+
+#Let's use these to get our F value!
+mssb/mssw
+
+F_value <- mssb/mssw
+```
+We can check if this is a significant result by calculating a P-Value! Let's do it
+
+```{r}
+#we need to input our F-ratio, the degrees of freedom, and whether or not this is a two-sided test
+#F-tests will always be one-sided, so set lower.tail equal to False
+#Let's say were using a significance level of 0.05
+pf(5.776, df1 = 2, df2 = 21, lower.tail = FALSE)
+#f-distribution (F-value, between group df, within group df, lower.tail=False for a 1 sided test)
+```
+What do you think, based on a P-value of 0.01?
+
+Let's do this again, using one function!
+
+```{r}
+
+my_aov_plant <- aov( formula = Outcome ~ Group, data = Plant_Data ) 
+#don't look at this in the global enviornment, it makes the information harder to find. Just look at the output in the r chunk
+my_aov_plant
+```
+This shows that our between-group SS is 18.083 and the DF is 2, while the within-group SS is 32.875 and the DF is 21. This matches our earlier work! But, we have no P-value. How can we get this? Using the summary() command!
+
+```{r}
+summary(my_aov_plant)
+```
+
+This print-out shows some additional information: we can see that our F-statistic is 5.776 (this matches my calculations!) and the P-value is 0.01. Based on the stars, we know right away that this is significant at the 0.05 significance level. 
+
+Let's Calculate Effect Size now, too!
+
+```{r}
+#from the lsr package
+etaSquared(x = my_aov_plant)
+
+```
+Here, our eta-squared value is 0.355, which is somewhat moderate. This tells me that fertilizer explains some, but not most of the variation between the group means. There may be other factors that influence plant growth!
+
+Ok, so now I have confirmed that The three groups are not equal to each other. What if I want to know which groups are different from each other (e.g. is the Amazing group different from the none group? Are the Amazing and Miracle Grow groups different?). 
+
+If you remember from our last topic, we can very easily compare two means to each other using a t-test. In this case, we'll use a function that enables us to compute pairwise t-tests using the lsr package.
+
+```{r}
+
+posthocPairwiseT(x = my_aov_plant)
+
+```
+To read this:
+It is telling you what data it is using, the outcome and group variables from my_aov_plant.  The pairwise t-test function in R makes you go through multiple steps before being able to use it, so the posthocPairwiseT function in the LSR package gives the same information but with less steps to get there. 
+
+The values in the posthoc test are p-values which you can compare to our alpha values (.05, .01. 001) to see if there is significance. Then you just go down the columns. The difference between the means of amazing growth and miracle grow was not significant. The difference between amazing grow and the control group was significant at p<.01 and the difference between miracle grow and the control group was not significant. 
+
+In terms of hypotheses
+
+We'd fail to reject the null hypothesis for Amazing vs Miracle and Miracle vs None.  We would reject the null hypothesis for Amazing vs. None (and remeber none is our control group)
+__________________________________________________________________________________________________________________
+BONFERRONI CORRECTION
+
+Ok, so this seems nice! But what if I have many groups? With more than three groups, it becomes tricky to minimize my type I error rate.  For example, if we had decided to run 45 “post hoc” tests to try to find out which ones were significantly different from each other, you’d expect 2 or 3 of them to come up significant by chance alone
+
+In this case, I may want to run a corrected version of the pairwise t-test to account for this - we call this a "correction for multiple comparisons".
+
+Let's use a Bonferroni Correction. In this correction, we want to make sure that the total type-1 error across the test is not greater than the significance level (in our case, 0.05). We can make sure this is true by multiplying our p values by the total number of tests we're performing (see the book chapter if you want more of an explanation on this). So:
+
+              corrected_p (p') = p-value (p) * number of tests (m)
+              Bonferroni correction, you would reject the null hypothesis if  p′< α
+
+```{r}
+library(lsr)
+
+posthocPairwiseT(x = my_aov_plant, p.adjust.method = "bonferroni")
+
+```
+This doesn't change the outcome of our test, but I'm sure you can imagine how it might change other tests - this increases our P-values by 3x, making it less likely that we'll reject the null hypothesis for tests where the P-value is right on the cusp of our significance level (e.g. a p-value of 0.05 becomes 0.15 under this correction!)
+
+___________________________________________________________________________________________________________________
+HOLM CORRECTION
+
+Another adjustment (a more common one!) is called the Holm adjustment. If we sort our P-values largest to smallest and number each test 1 to j, we simply multiply the p-value by the number of the test. For example, we multiply the p-value in test 1 by 1, in test 2 by 2, all the way until test J, which we multiply by J. See Topic 10 ppt for chart and explanation 
+
+It is typically better to use the Holm than the Bonferroni test. It is more powerful (less likely to have type II error) and has the same type 1 error rate. Unless asked to use Bonferroni, you should be using the post hoc Holm test.
+
+But wait, there's one caveat here: when we multiply the P-values, we compare the original P-value to the corrected version, and choose the value that is larger (usually it will be the corrected value). More formally:
+
+         Holm-Corrected P-value = J * P-Value
+         
+Let's see it using the LSR package:
+
+```{r}
+posthocPairwiseT(x = my_aov_plant, p.adjust.method = "holm")
+```
+Wait, this looks the same as the original version! That's because it's the default option for the posthocPairwiseT function.
+
+-------------------------------------------------------------------
+Assumptions of the ANOVA
+-------------------------------------------------------------------
+
+Technically, in order for our ANOVA to be valid, there are a few assumptions that need to be true. 
+
+The first assumption is normality - we want our data to be normally distributed.
+
+The second assumption is homogeneity of variance - we want the population standard deviation to be the same for all groups
+
+Finally, the third assumption is independence - there should be no correlation in the residuals. 
+
+Let's test for the homogeneity of variance assumption first. There are two tests that we can use to do this; the first is Levene's Test. This takes the following steps: compute a value, Z, which is equal to the absolute deviation of each observation (plant, in our case) from its group mean. Then,we perform an ANOVA on Z. There's actually one function that will do this for us, and it's in the car package.
+
+```{r}
+library(car)
+
+leveneTest( y = my_aov_plant, center = mean )
+```
+
+How do I read the results of this test? With a P-value of 0.672, we can conclude that our variance appears to be homogenous (this is what we want!).
+
+We can perform another test for this, called the Brown-Forsythe test; this is identical to the Levene test, except that it uses deviations from group medians instead. Let's try this one out:
+
+```{r}
+#It turns out that using the median is actually the default of the leveneTest function!
+
+leveneTest(y = my_aov_plant)
+```
+Again, based on this test, my data appears to have homogenous variance. 
+________________________________________________________________________________________________________________
+WELCH ONE WAY TEST
+
+But what if this assumption is violated? We can run a different version of the ANOVA, called Welch's One-Way test, which is valid even with heterogeneous variance. We can interpret it roughly the same way. 
+
+```{r}
+
+oneway.test(Outcome ~ Group, data = Plant_Data)
+
+```
+Here, the within group degrees  of freedom (denom df) decreased and the f value decreased. However, our p-value was still less than .05 so we know that at least of the means across the 3 groups was statistically significantly different from at least one other group. 
+________________________________________________________________________________________________________________
+TESTING NORMALITY
+
+Next, let's test the normality of the data! We can do this by plotting our residuals. 
+
+```{r}
+library(dplyr)
+#Pull out the residuals
+#Residuals are the leftover variability: that is, “stuff” that the model can’t explain
+#If we compare these numbers to the numbers to the devations in the plant data that we calculated earlier, they are the same
+
+my.anova.residuals <- residuals( object = my_aov_plant ) 
+
+#plot them!
+#We want our residuals to be normally distributed - this looks great
+hist(my.anova.residuals)
+
+```
+
+Another way to assess the residuals is to draw a QQ plot. 
+```{r}
+#We want to see a somewhat linear line here - this looks ok, but not perfect!
+qqnorm( y = my.anova.residuals )
+qqline(y= my.anova.residuals)
+```
+
+Finally, we can conduct a Shapiro-Wilk Test for normality to check for this more formally. 
+```{r}
+shapiro.test( x = my.anova.residuals )
+```
+Pay attention to the p-value here. It is .28. With a significance level of 0.05, the Shapiro-Wilks test finds that there is no evidence that my data is not normally distributed. 
+_____________________________________________________________________________________________________________________
+KRUSKAL WALLIS TEST 
+
+What if this assumption were violated? I won't get into it too much here, but there is a test called the Kruskal test that you can use instead (ANOVA variant). This is a non-parametric test, which means that the test does not assume anything about the underlying distribution of the data. You can use this kind of test when the normality assumption does not hold. We calculate it like this:
+
+```{r}
+kruskal.test(Outcome ~ Group, data = Plant_Data)
+```
+Ideally, we want to use the more basic versions of the test first - I only recommend using tests like Welch's One-Way test or the Kruskal-Wallis test when our assumptions are violated and we cannot fix them. 
+
+
+That's it for this week! Now we have worked through hypothesis tests, t-tests, and ANOVAs - these are foundational statistical tests. Next week, we will start learning another exciting statistical test (one you may have heard of before) - linear regression!
