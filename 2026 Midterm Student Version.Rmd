@@ -101,7 +101,12 @@ _________________________________________________________________________
 
 
 ```{r}
-
+colors <- c("black", "red")
+ggplot(Console_data, aes(x=Year, y=Sales..Units.)) +
+  geom_point(color="black") + 
+  geom_line(color="red")  +
+  labs(y = "console sales", x="year", title= "console sales per year")
+  
 ```
 ___________________________________________________________________________
 
@@ -109,10 +114,17 @@ ___________________________________________________________________________
 
 a)
 ```{r}
-
+avg_sale <- mario_sales %>% group_by(Console) %>% summarize(avg_gross = mean(Gross..est.., na.rm = TRUE))
 ```
 
 b)Which consoles had the higest and lowest gross sales ? (ignore the data for "all consoles" and "Switch 2")
+```{r}
+high_low <- avg_sale %>% filter(Console != "All Consoles", Console != "Switch 2")
+
+high <- high_low %>% filter(avg_gross == max(avg_gross))
+low <- high_low %>% filter(avg_gross == min(avg_gross))
+```
+
 
 
 ___________________________________________________________________________
