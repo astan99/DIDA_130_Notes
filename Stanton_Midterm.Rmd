@@ -134,12 +134,16 @@ ___________________________________________________________________________
 a) How do they compare against the mean of all consoles in terms of z-score? Is this an outlier console?
 
 ```{r}
-
+Xbar <- 585714286
+mu <- 2324704000
+sigma <- sd(high_low$avg_gross)
+z <- (Xbar - mu) / sigma
+z
 ```
 
 b) What percentile does this occupation rank? Assume we have a normal distribution
 ```{r}
-
+pnorm(z) * 100
 ```
 ___________________________________________________________________________
 
@@ -152,14 +156,32 @@ _________________
 
 
 ```{r}
-setwd
-Marvel <- read.csv("Marvel Movie Data.csv")
+setwd("/Users/aidenstanton/projects/R")
+Marvel <- read.csv("What is The Best Performing Marvel Movie_ PUBLIC DATA.csv")
 ```
 
 11) Create a new dataframe that summarizes mean, median, max, min, and sd for the Category of Marvel Movie. It should include the  for the variables "budget...m.", "domestic.gross...m" "international.gross...m."
 
 ```{r}
-
+movie_summary <- Marvel %>% summarise(
+  budget_mean = mean(budget...m., na.rm = TRUE),
+  budget_median = median(budget...m., na.rm = TRUE),
+  budget_max = max(budget...m., na.rm = TRUE),
+  budget_min = min(budget...m., na.rm = TRUE),
+  budget_sd = sd(budget...m., na.rm = TRUE),
+  
+  domestic_mean = mean(domestic.gross...m., na.rm = TRUE),
+  domestic_median = median(domestic.gross...m., na.rm = TRUE),
+  domestic_max = max(domestic.gross...m., na.rm = TRUE),
+  domestic_min = min(domestic.gross...m., na.rm = TRUE),
+  domestic_sd = sd(domestic.gross...m., na.rm = TRUE),
+  
+  international_mean = mean(international.gross...m., na.rm = TRUE),
+  international_median = median(international.gross...m., na.rm = TRUE),
+  international_max = max(international.gross...m., na.rm = TRUE),
+  international_min = min(international.gross...m., na.rm = TRUE),
+  international_sd = sd(international.gross...m., na.rm = TRUE)
+)
 
 ```
 12) 
@@ -172,22 +194,29 @@ We want to compare the average domestic gross for the Avengers movies to the ave
 ```{r}
 mean(Marvel$domestic.gross...m.)
 sd(Marvel$domestic.gross...m.)
+
 ```
 ```{r}
-
+avengers <- Marvel %>% filter(category == "Avengers")
+Xbar2 <- mean(avengers$domestic.gross...m.)
+n <- 4
+z <- (Xbar2 - 370.9) / (193.9 / sqrt(n))
+z
+1-pnorm(z)
 
 ```
 13) Write your final results as though you are publishing in a journal article
+The average domestic gross income of avengers movies is significantly higher than the average of Marvel movies as a whole.
 ______________________________________________________________________________________
 
 ______________________________________________________________________________________
 14) Let's say I am presenting my data to the head of Marvel Studios. They want to know if they should make another Avenger's film. What could you tell them based on your analysis of the Avenger's movies?
-
+The analysis on the movie data here supports the idea of making a new Avengers movie as the gross domestic income for each Avengers movie is significantly higher than the average meaning it would be a financially benefical decision.
 ______________________________________________________________________________________
 
 ______________________________________________________________________________________
 
-15)Is anything missing from this analysis? As a data analyst, what kinds of data or topics would you want to add to this project?
+15)Is anything missing from this analysis? As a data analyst, what kinds of data or topics would you want to add to this project? The analysis only covers domestic income not international meaning important data could be left out about total profits. The cost to make the movies hiring actors marketing etc is also not covered.
 
 ______________________________________________________________________________________
 
@@ -200,23 +229,26 @@ ___________________________
 
 I am tracking average plant growth for tomatoes in my garden. 
 
+```{r}
 plant<- c(3, 6, 12, 10, 1, 4, 6, 13)
+```
+
 
 a)Based on this data, and assuming a normal distribution, what is the probability that a random plant from the population where this sample comes from is 11 inches tall or shorter?
 
 ```{r}
 
-
+pnorm(q=11, mean = mean(plant), sd = sd(plant))
 ```
 b) #What is the probability that a random plant from this population is between 8 and 12 inches tall?
 
 ```{r}
-
+pnorm(q=12, mean=mean(plant), sd=sd(plant)) - pnorm(q=8, mean=mean(plant), sd=sd(plant))
 
 ```
 
 c)#What about the probability that a random plant from this population where the sample comes from is taller than 13 inches?
 
 ```{r}
-
+1-pnorm(q=13, mean=mean(plant), sd=sd(plant))
 ```
