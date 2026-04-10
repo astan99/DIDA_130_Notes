@@ -211,7 +211,7 @@ ________________________________________________________________________________
 
 ______________________________________________________________________________________
 14) Let's say I am presenting my data to the head of Marvel Studios. They want to know if they should make another Avenger's film. What could you tell them based on your analysis of the Avenger's movies?
-The analysis on the movie data here supports the idea of making a new Avengers movie as the gross domestic income for each Avengers movie is significantly higher than the average meaning it would be a financially benefical decision.
+The analysis on the movie data here supports the idea of making a new Avengers movie as the gross domestic income for each Avengers movie is significantly higher than the average meaning it would be a financially beneficial decision.
 ______________________________________________________________________________________
 
 ______________________________________________________________________________________
