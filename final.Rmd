@@ -8,6 +8,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(lsr)
+library(car)
 ```
 
 
@@ -53,5 +54,21 @@ ggplot(region2, aes(x = Nearby_Country_Events, y = country_events)) +
     x = "Nearby Political Violence",
     y = "Domestic Political Violence"
   )
+```
+
+```{r}
+sum_violence <- region2 %>% ungroup() %>% select(c(country_events, Nearby_Country_Events))
+
+mean <- sum_violence %>% summarise(across(everything(), ~mean(.)))
+median <- sum_violence %>% summarise(across(everything(), ~median(.)))
+min <- sum_violence %>% summarise(across(everything(), ~min(.)))
+max <- sum_violence %>% summarise(across(everything(), ~max(., na.rm=TRUE)))
+iqr <- sum_violence %>% summarise(across(everything(), ~IQR(., na.rm=TRUE)))
+violencestats <- rbind(mean, median, min, max, iqr)
+head(violencestats)
+```
+
+```{r}
+
 ```
 
