@@ -64,7 +64,8 @@ median <- sum_violence %>% summarise(across(everything(), ~median(.)))
 min <- sum_violence %>% summarise(across(everything(), ~min(.)))
 max <- sum_violence %>% summarise(across(everything(), ~max(., na.rm=TRUE)))
 iqr <- sum_violence %>% summarise(across(everything(), ~IQR(., na.rm=TRUE)))
-violencestats <- rbind(mean, median, min, max, iqr)
+violencestats <- data.frame(rbind(mean, median, min, max, iqr))
+rownames(violencestats) <- c("mean", "median", "min", "max", "iqr")
 head(violencestats)
 ```
 
