@@ -4,6 +4,54 @@ la = read.csv("Latin-America-the-Caribbean_aggregated_data_up_to_week_of-2026-03
 ```
 
 ```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lsr)
+```
+
+
+```{r}
 la
+```
+
+```{r}
+p_violence <- la %>% filter(DISORDER_TYPE == "Political violence") %>% group_by(COUNTRY) %>% summarise(total = sum(EVENTS, na.rm = TRUE))
+```
+
+```{r}
+ggplot(p_violence, aes(x=total)) + geom_histogram(fill = "red", color="black", bins=20) + labs(
+  title = "Political violence events across Latin America",
+  x = "Number of Political Violence Events",
+  y = "Countries")
+```
+
+```{r}
+regional_violence <- la %>% filter(DISORDER_TYPE == "Political violence") %>% group_by(WEEK, REGION, COUNTRY) %>% summarize(country_events = sum(EVENTS), .groups = "drop")
+```
+
+
+```{r}
+region2 <- regional_violence %>% group_by(WEEK, REGION) %>% mutate(Nearby_Country_Events = sum(country_events) - country_events)
+```
+
+
+```{r}
+ggplot(region2, aes(x = Nearby_Country_Events)) + geom_histogram(fill = "blue", color="black", bins=20) + labs(
+  title = "Political Violence in Surrounding Countries",
+  x = "Events in Other Countries Occuring in the Same Region",
+  y = "Number of events"
+)
+```
+
+```{r}
+ggplot(region2, aes(x = Nearby_Country_Events, y = country_events)) + 
+  geom_point(color="orange") +
+  geom_smooth(method="lm", color="blue") +
+  labs(
+    title = "Regional Political Violence",
+    x = "Nearby Political Violence",
+    y = "Domestic Political Violence"
+  )
 ```
 

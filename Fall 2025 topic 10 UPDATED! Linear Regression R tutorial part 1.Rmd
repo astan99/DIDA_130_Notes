@@ -1,0 +1,280 @@
+---
+title: "Topic 10 Practice Tutorial, Version 2"
+
+---
+
+```{r}
+library(dplyr)
+library(car)
+library(lsr)
+library(ggplot2)
+options(scipen=999)
+```
+```{r}
+
+setwd("/Users/aidenstanton/projects/R")
+NYcounty <- read.csv ("nydata.csv")
+
+#next I am multiplying the fraction by 100 to give us the percentage to make the values a easier to read throughout the rest of the document. This is another good source for manipulating data #https://www.dataquest.io/blog/add-column-to-dataframe-in-r/
+
+
+NYcounty$unemp_rate_percent <- NYcounty$unemp_rate * 100
+NYcounty$frac_middleclass_percent <- NYcounty$frac_middleclass * 100
+
+```
+
+What variables are we working with?
+
+We are using:
+
+1) fraction of middle class percent: shows the percent of the population that is middle class in each county
+
+2) mean household income: shows the mean income for the county
+
+3) *in the second model* unemployment rate percent: the percent of the county that is unemployed
+
+In this example we want to build a regression model that shows the relationship between the fraction of middle class and mean household income. We predict that the mean household income influences the fraction of middle class. Mean household income is our independent variable and fraction middle class is our dependent variable. 
+
+Let's set up our regression
+
+name_of_regression <- lm (formula = outcome ~ predictor, data= dataframe)
+
+```{r}
+ny_regression <- lm(formula = frac_middleclass_percent ~ mean_household_income,  
+                    data = NYcounty) 
+
+summary(ny_regression)
+```
+
+
+
+
+What are we looking at?
+
+Call-tells us the code that we used, the variables we are looking at, and the dataframe of those variables
+
+Coefficents: Gives us b^0(b^0 = intercept) and b^1(b^1 = slope)
+
+Our b^0= 78% and our b^1 =-.00065%
+    intercept              slope
+    
+How to interpret:
+
+If we remember the definition of the slope, a regression coefficient of  b^1=-.00065% means that if I increase  Xi by 1, then I’m decreasing Yi by .00065% (the negative represents decreasing).
+
+That is, each dollar added to household income will decrease the percent of middle class for each count by .00065%. If all those zeros are confusing, you can think of it like this--for every $1,000 added to the mean household income, the frac of middle class decreases .65%
+
+What about the intercept? Well, since  b^0 corresponds to “the expected value of  Yi when  Xi  equals 0”, it implies that if I have 0 mean income ( Xi =0) then the county's fraction middle class is ( Yi= 78) or 78%. 
+
+This is not meaningful because there never is mean income of 0 for an entire county. It is just a necessary component for the math of the model.  Our p values are statistically significant for both the intercept and the number of mean household income so it looks really like there is a trend here. 
+
+For R^2 (R squared which measures how well the model explains the variation of the dependent variable) it means that 59.7% of the variance in the fraction of middle class percent is explained by mean household income
+
+The F statistic (tells you how significant the model is) 87.42 and a p value of <.001 indicates that the model is significant. 
+
+If the F statistic was closer to 1 and the p value was >.05 it would indicate that the model is insiginficant and there is not a relationship between the variables. 
+
+
+_____________________________________________________________________________________________________________________
+
+Next we can plot the regression
+#in the aesthetic layer our x is the predictor variable, y is the outcome variable
+```{r}
+ggplot(NYcounty, aes(x = mean_household_income, y = frac_middleclass_percent))+
+  geom_point()+
+  geom_smooth(method = "lm", se = F)+
+  theme_minimal()
+```
+#here we are using a point plot for our data. The regression line is made from the geom smooth. se = F refers to the confidence interval being displayed. If it was "T", a gray area would appear behind the regression line to show where the true regression line could exis with 95% confidence.  It is not necessary to include it now. 
+____________________________________________________________________________________________________________________
+
+Why do you think there is an inverse relationship between mean household income and fraction of middle class? Wouldn't you expect an increase in income also to increase the middle class? What could be going on?
+
+____________________________________________________________________________________________________________________
+
+Let's see if another predictor variable will change our model. I also think that unemployment is also predictive of fraction of middle class in the county. Now we are going to work on a multiple linear regression
+
+
+```{r}
+ny_multi_regression <- lm( formula = frac_middleclass_percent ~ mean_household_income + unemp_rate_percent,  
+                    data = NYcounty) 
+summary(ny_multi_regression)
+```
+
+
+What does this mean?
+
+Well, if we look at the coefficents, the model has changed a little bit, but based on the p values, they are still significant trends for both the intercept, mean household income, and now crime rate . 
+
+For mean household income: regression coefficient of  b^1=-0.00069 means that if I increase  Xi by 1, then I’m decreasing Yi by .00069%. That is, each dollar in income gained will decrease the fraction of middle class .00069% or for every $1000, frac middle class decreases by .69%
+
+For unemployment rate: regression coefficient of b^1 = -1.056 means that if I increase Xi 1, then I'm decreasing Yi by 1.06%
+
+What about the intercept? b^0 corresponds to “the expected value of  Yi when  Xi  equals 0”, it implies that if I have 0 for the mean income of a county ( Xi =0) then the fraction of middle class households is ( Yi= 84.9%  )
+
+We also need to pay attention to the residuals 
+
+In particular it’s worth quickly checking to see if the median is close to zero, and to see if the first quartile is about the same size as the third quartile.
+
+sm res value                           hi res value
+     Min       1Q   Median       3Q      Max 
+-13.5861  -2.8882   0.7479   3.1137  15.4445 
+
+These are not too bad.  The median is close to 0 so the residuals are close to being centered around zero--this is what we want to see. The quartiles (the two tails of the distribution) show some skew, meaning they are not symmetrically distributed. We subtract the median from each quartile to see if those differences are the same.  ~  (-2.9)-.7 = -3.6  and ~ 3.1 - .7= 2.4  Let's keep going to see if that difference between the 1st and 3rd quartiles is significant. 
+
+
+______________________________________________________________________________________________________________________
+
+Ok, let's check out our confidence intervals at 95% confidence.
+
+The values you will see in the brackets and in the chart represent the units of the dependent variable, in this case, fraction of the middle class. 
+
+```{r}
+confint(ny_multi_regression)
+```
+
+For mean household income, my estimate is [-0.0008    -0.0005]
+This indicates the  estimated range of values by which the fraction of middle class decreases with each increase additional dollar of mean household income income for the true population
+
+
+For unemployment rate percent, my estimate is [ -2.68    0.57]
+This indicates the likely range of values by which each additional percentage increase in unemployment will decreases (or increase) the fraction of middle class for the true population 
+
+These confidence intervals provide plausible ranges for the population values of b^1 and b^2, the true slopes for the effects of mean household income and and unemployment rate on the fraction of middle class in each county.
+_____________________________________________________________________________________________________________________
+
+Next, Let's try standardizing our coefficients to see if we can compare effect size. 
+
+```{r}
+standardCoefs(ny_multi_regression)
+```
+If we look at beta, mean household income is -.82 and unemployment rate percent is -.12, mean household income has a larger effect on the fraction of middle class than unemployment. So with each standard deviation increase in mean household income, frac of middle class decreases by .82 sd.  With each standard deviation increase of unemployment, frac of middle class decreases .11 sd
+
+The - in this case refers to the direction of the correlation, as mean household income increases, the fraction of middle class decreases. Same for unemployment but it has less of an effect. 
+_____________________________________________________________________________________________________________________
+
+Now we should revisit our assumptions about regressions:
+-------------------------------------------------------------
+
+Normality: our predictors do not need to be normal distributed, but our residuals do!
+
+Linearity: OLS regression only makes sense when the relationship between our variables is linear
+
+Homogeneity of Variance: we expect the standard deviation of the residuals of Y-hat to be approximately equal
+
+Uncorrelated Predictors: this isn’t strictly a requirement, but it can mess with our estimation - we don’t want our predictor variables to be too correlated with each other
+
+Residuals are independent of each other: we don’t want our residuals to be correlation, or to see a weird pattern in the residuals
+
+No “bad” outliers: again, not a strict assumption of the model - we just don’t want there to be any extreme outliers that overly influence the results of the analysis
+_____________________________________________________________________________________________________________________
+
+Model Diagnostics
+
+We've already noticed that something is off with our residuals so our overall model may also be off too. We can check to see if the aformetioned assumptions have been violated. 
+
+First, using the plot(), function we can look at the residuals versus fitted values. 
+```{r}
+plot(ny_multi_regression)
+```
+
+
+
+
+When you plot the ny multi regression data, you're going to see four graphs in the output. Click on the first graph in the row.  
+
+The title should be Residuals vs. Fitted. This graph is looking at the residuals (the difference between actual and expected values) and predicted values (Fitted = predicted)
+
+X= the predicted values
+Y= residuals, difference between observed and predicted values
+
+The line just helps us visualize the trend. Ideally, it would be flat at 0 on the y axis, which it is not. 
+
+Ok this looks kind of wonky. We have a few bends in this model. Let's keep looking.  
+---------------------------------------------------------------------------------------------------------------------
+We can also make a more complex version of the residual versus fitted plot by looking at residual plots
+
+```{r}
+residualPlots(ny_multi_regression)
+```
+
+Here it looks like unemployment might be causing a problem (see the curve in the middle) while mean household income is in nearly a straight line. 
+--------------------------------------------------------------------------------------------------------------------
+Going back to the other plots using the plot function
+
+```{r}
+plot(ny_multi_regression)
+```
+
+Click on the second graph in the. We are looking at the QQ (Quantile Quantile) plot. QQ plots help us look for normality in the distribution of our residuals Ideally we'd like to see close to a straight line, which we kind of do here. But it also looks like we have quite a few outliers in the lower end and higher end of our data. We can do a shapiro-wilk test to see if this issue is signficant. 
+
+```{r}
+shapiro.test(residuals(ny_multi_regression))
+```
+Our W rounds to 1 and our p value is not significant. This is a good sign as it indicates the residuals appear to be normally distributed.  If the p value was <.05 (indicating significance) it would mean that normality of the distribution of residuals was violated. We care about the normality of the distribution of residuals because it points to the accuracy of our hypothesis tests and confidence intervals. This helps us limit uncertainty about the data. 
+-----------------------------------------------------------------------------------------------------------------
+Onto the next graph. This is Scale-Location This plot helps us check for homogeneity of variance! This tells us if residuals have a roughly equal spread across all predicted values. So whatever value x is, the residuals should be about the same distance away from 0. 
+
+As usual, we are looking for a straight line in this plot! Click on the third graph.
+
+
+```{r}
+plot(ny_multi_regression)
+```
+We have a lot of dips and curves in this line, so this assumption is likely violated.
+Let's try another test to see what is happening. NCV stands for non-constant variance and is performed when the normailtiy of the variance is violated. 
+```{r}
+ncvTest(ny_multi_regression)
+```
+In this case, our p-value is not significant so despite our weird looking line, it seems that the variance of the residuals is constant
+------------------------------------------------------------------------------------------------------------------
+The last graph in this list is Residuals versus leverage. A general rule: if any points fall outside of the two gray dashed lines, they are likely very influential.  We do have a few outliers and points 31 and 3 fall outside of one gray line at .5 so they may have some influence on the data. 
+
+```{r}
+plot(ny_multi_regression)
+```
+_____________________________________________________________________________________________________________________
+
+Variance Inflation Factor (VIF)
+
+We use this to make sure our variables aren’t overly correlated. This measure is essentially what the R2 would be if we used the predictor variable as the outcome variable against all the other variables in the model
+
+A VIF > 4 might warrant a closer look, while a value > 10 may be a serious problem
+
+```{r}
+vif(ny_multi_regression)
+```
+Ok, this actually isn't bad at all. Mean household income and unemployment do not seem to be overly correlated. 
+____________________________________________________________________________________________________________________
+Comparing Regression Models:  Akaike information criterion
+The smaller the AIC value, the better the model performance is
+The best model is the one that fits the data well (low residuals) using as few predictors as possible (low K)
+
+In this next chunk, I made 2 regression models, Model 0 has 1 predictor variable, Model 1 has 2 predictor variables. 
+```{r}
+Model_0 <- lm( formula = frac_middleclass_percent ~ mean_household_income,  
+                    data = NYcounty)
+Model_1 <-lm( formula = frac_middleclass_percent ~ mean_household_income + unemp_rate_percent,  
+                    data = NYcounty)
+
+```
+
+Next we can use the AIC (Akaike Information Criterion) function to compare the models. Model 0 is our null hypothesis and Model 1 is our alternate 
+```{r}
+AIC (Model_0, Model_1)
+```
+In this instance Model 0 (the null hypothesis) has the lower AIC score but it does not seem too much lower than Model 1. 
+
+We can do an anova on the two models to further investigate
+
+```{r}
+anova(Model_0,Model_1)
+```
+the p value is not signifcant here, so we fail to reject null hypothesis (that Model 0 is the better fit) and we cannot conclude that adding unemployment improves our model. 
+
+____________________________________________________________________________________________________________________
+
+
+
+
+

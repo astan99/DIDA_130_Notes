@@ -1,0 +1,219 @@
+---
+title: "Topic 11 Practice Tutorial"
+
+---
+
+```{r}
+library(dplyr)
+library(car)
+library(lsr)
+library(ggplot2)
+options(scipen=999)
+```
+```{r}
+#set your working directory and use the twitch data or you can import the data from the global enviornment 
+#import -> from text -> select the folder with your data -> select the file -> click import on the menu
+
+setwd("C:/Users/owner/Desktop/Fall 2024 Binghamton/DIDA 130/DIDA 130/Data")
+twitchdata <- read.csv("twitchdata.csv")
+```
+
+In this example we want to build a regression model that shows the relationship between number of followers and watch time minutes. We predict that the number of followers influences the number of watch time minutes. Number of followers is our independent variable and watch time minutes is our dependent variable. 
+
+Let's set up our regression
+
+name_of_regression <- lm (formula = outcome ~ predictor, data= dataframe)
+
+```{r}
+twitch_regression <- lm( formula = Watch.time.Minutes. ~ Followers,  
+                    data = twitchdata) 
+
+summary(twitch_regression)
+```
+
+What are we looking at?
+
+Call-tells us the code that we used, the variables we are looking at, and the dataframe of those variables
+
+Coefficents: Gives us b^0(b-hat0/intercept) and b^1(b-hat1/slope)
+
+Our b^0= 176,844,554.9 and our b^1 =423.8
+    intercept                  slope
+    
+These are pretty huge numbers, but this makes sense given the huge amount of minutes watched for some of these streamers. 
+
+How to interpret:
+
+If we remember the definition of the slope, a regression coefficient of  b^1=423.8 means that if I increase  Xi by 1, then I’m increasing Yi by 423.8. That is, each follower gained will increase watch time by 423.8 minutes. What about the intercept? Well, since  b^0 corresponds to “the expected value of  Yi when  Xi  equals 0”, it implies that if I have 0 followers ( Xi =0) then my watch time minutes is ( Yi= 176,844,554.9 ) which is kind of crazy! But there may be some reasons for this which we’ll get to later. Our p values are statistically significant for both the intercept and the number of followers so it looks really like there is a trend here. 
+_____________________________________________________________________________________________________________________
+
+Next we can plot the regression
+```{r}
+ggplot(twitchdata, aes(x = Followers, y = Watch.time.Minutes.))+
+  geom_point()+
+  geom_smooth(method = "lm", se = F)+
+  theme_minimal()
+```
+_____________________________________________________________________________________________________________________
+
+Let's see if another predictor variable will change our model. I also think that the followers gained throughout the year is also predictive of watch time minutes. Now we are going to work on a multiple linear regression
+
+```{r}
+twitch_regression_multi <- lm( formula = Watch.time.Minutes. ~ Followers + Followers.gained,  
+                    data = twitchdata) 
+summary(twitch_regression_multi)
+```
+
+
+What does this mean?
+
+Well, if we look at the coefficents, the model has changed a little bit, but based on the p values, the are still signficant trends for both the intercept, Followers, and now Follwers gained. 
+
+For Followers: regression coefficient of  b^1=352.8 means that if I increase  Xi by 1, then I’m increasing Yi by 352.8. That is, each follower gained will increase watch time by 423.8 minutes. 
+
+For Followers.gained: regression coefficient of  b^2=234.64  means that if I increase  Xi by 1, then I’m increasing Yi by 234.64 . That is, each for follower gained over the observed year of data collection will increase watch time by 234.64  minutes. 
+
+What about the intercept? b^0 corresponds to “the expected value of  Yi when  Xi  equals 0”, it implies that if I have 0 followers ( Xi =0) then my watch time minutes is ( Yi= 169,069,024.81  )
+
+We also need to pay attention to the residuals 
+In particular it’s worth quickly checking to see if the median is close to zero, and to see if the first quartile is about the same size as the third quartile.
+
+These seem kind of off, the median is not close to 0, and the quartiles are about 100 million minutes apart. This could be due to a wide range, meaning we have some extreme outliers in the data, Heteroscidasticity, so our independent variables could have significantly different variance, or unaccounted patterns in the data. Let's keep going to see what's happening. 
+
+______________________________________________________________________________________________________________________
+
+Ok, let's check out our confidence intervals.
+The values you will see in the brackets and in the chart represent the units of the dependent variable, in this case, watch time minutes. 
+
+```{r}
+confint(twitch_regression_multi)
+```
+
+For followers, my estimate is [305.5494       400.1260]
+This indicates the  likely range of values by which watch time increases with each additional follower
+
+
+For followers gained, my estimate is [122.7287       346.5462]
+This indicates the likely range of values by which each additional gained follower increases watch time.  This seems lower and more variable than the effect for Followers. 
+
+These confidence intervals provide plausible ranges for the population values of b^1 and b^2, the true slopes for the effects of Followers and Followers.gained on watch time.
+_____________________________________________________________________________________________________________________
+
+Next, Let's try standardizing our coefficients to see if we can compare effect size. 
+
+```{r}
+standardCoefs(twitch_regression_multi)
+```
+If we look at beta, it seems that Followers has more of an effect on watch time than followers gained
+_____________________________________________________________________________________________________________________
+
+Now we should revisit our assumptions about regressions:
+-------------------------------------------------------------
+
+Normality: our predictors do not need to be normal, but our residuals do!
+
+Linearity: OLS regression only makes sense when the relationship between our variables is linear
+
+Homogeneity of Variance: we expect the standard deviation of the residuals of Y-hat to be approximately equal
+
+Uncorrelated Predictors: this isn’t strictly a requirement, but it can mess with our estimation - we don’t want our predictor variables to be too correlated with each other
+
+Residuals are independent of each other: we don’t want our residuals to be correlation, or to see a weird pattern in the residuals
+
+No “bad” outliers: again, not a strict assumption of the model - we just don’t want there to be any extreme outliers that overly influence the results of the analysis
+_____________________________________________________________________________________________________________________
+
+Model Diagnostics
+
+We've already noticed that something is off with our residuals so our overall model may also be off too. We can check to see if the aformetioned assumptions have been violated. 
+
+First, using the plot(), function we can look at the residuals versus fitted values. 
+```{r}
+plot(twitch_regression_multi)
+```
+
+
+
+
+When you plot the twitch_regression_multi data, you're going to see four graphs in the output. Click on the first graph in the row.  The title should be Residuals vs. Fitted
+
+OK, this is not a horrible result, but the line does have a bend at the beginning, so it is not perfectly straight and does deviate somewhat.  Let's keep looking. 
+---------------------------------------------------------------------------------------------------------------------
+We can also make a more complex version of the residual versus fitted plot by looking at residual plots
+
+```{r}
+residualPlots(twitch_regression_multi)
+```
+
+Here it looks like the Followers variable might be more of a problem than the Followers Gained
+--------------------------------------------------------------------------------------------------------------------
+Going back to the other plots using the plot function
+
+```{r}
+plot(twitch_regression_multi)
+```
+
+Click on the second graph in the. We are looking at the QQ plot. Ideally we'd like to see close to a straight line, we do not have this here. It also looks like we have quite a few outliers in the lower end and higher end of our data. We can do a shapiro-wilk test to see if this issue is signficant. 
+
+```{r}
+shapiro.test(residuals(twitch_regression_multi))
+```
+Our W rounds to .7 and our p value is highly significant. The W is well below 1 and this result is significant so it indicates that there is a normality violation. 
+-----------------------------------------------------------------------------------------------------------------
+Onto the next graph. This is Scale-Location This plot helps us check for homogeneity of variance! 
+As usual, we are looking for a straight line in this plot! A curve indicates that our assumption may be violated.
+Let's try another test to see what is happening. 
+
+```{r}
+ncvTest(twitch_regression_multi)
+```
+Once again, our p value indicates significance, which implies that our Standard Errors are not reliable
+------------------------------------------------------------------------------------------------------------------
+The last graph in this list is Residuals versus leverage. A general rule: if any points fall outside of the two gray dashed lines, they are likely very influential.  And it looks ike we have a couple of them, point 1, 2, and 97 causing an issue in the data. We can try to rerun the regression without these points. 
+_____________________________________________________________________________________________________________________
+
+Variance Inflation Factor (VIF)
+
+We use this to make sure our variables aren’t overly correlated. This measure is essentially what the R2 would be if we used the predictor variable as the outcome variable against all the other variables in the model
+
+A VIF > 4 might warrant a closer look, while a value > 10 may be a serious problem
+
+```{r}
+vif(twitch_regression_multi)
+```
+Ok, this actually isn't bad at all. Followers and Followers.gained do not seem to be overly correlated. 
+____________________________________________________________________________________________________________________
+Comparing Regression Models:  Akaike information criterion
+The smaller the AIC value, the better the model performance is
+The best model is the one that fits the data well (low residuals) using as few predictors as possible (low K)
+
+In this next chunk, I made 3 regression models, Model 0 has 1 predictor variable, Model 1 has 2 predictor variables, and Model 2 has 3 predictor variables. I added Stream.time.minutes to see if that also had a relationship with Watch.time.Minutes
+```{r}
+Model0 <- lm( formula = Watch.time.Minutes. ~ Followers,  
+                    data = twitchdata)
+Model1 <-lm( formula = Watch.time.Minutes. ~ Followers + Followers.gained,  
+                    data = twitchdata)
+
+```
+
+Next we can use the AIC function to compare the models. Model 0 is our null hypothesis and Model 1 is our alternate
+```{r}
+AIC (Model0, Model1)
+```
+In this instance Model 1 (the alternate hypothesis) has the lower AIC score, but its not that much lower than Model 0. 
+
+We can do an anova on the two models to further investigate
+
+```{r}
+anova(Model0,Model1)
+```
+the p value is highly signifcant here, so we an reject the null hypothesis and conclude that of the two models to choose from, Model 1, follwers + followers gained might be the better fit for our data.
+
+____________________________________________________________________________________________________________________
+After completing all of these tests, what can we conclude about our regression model?
+
+
+
+_____________
+Model2 <- lm( formula = Watch.time.Minutes. ~ Followers + Followers.gained + Stream.time.minutes.,  
+                    data = twitchdata)
