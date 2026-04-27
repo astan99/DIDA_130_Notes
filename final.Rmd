@@ -70,6 +70,7 @@ head(violencestats)
 ```
 
 ```{r}
-
+regression <- lm(formula = country_events ~ Nearby_Country_Events, data = region2)
+summary(regression)
 ```
 
