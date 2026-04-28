@@ -74,3 +74,39 @@ regression <- lm(formula = country_events ~ Nearby_Country_Events, data = region
 summary(regression)
 ```
 
+```{r}
+group_means <- region2 %>% 
+  group_by(COUNTRY) %>% 
+  summarise(group_mean = mean(country_events))
+
+group_means
+```
+
+```{r}
+region2 <- region2 %>% 
+  group_by(COUNTRY) %>% 
+  mutate(deviation = country_events - mean(country_events)) %>% 
+  mutate(sq_deviation = deviation^2)
+region2
+```
+```{r}
+within_group_violence <- sum(region2$sq_deviation)
+
+
+within_group_violence
+```
+
+```{r}
+samp_mean_violence <- mean(region2$country_events)
+group_means <- group_means %>% 
+  mutate(deviations = group_mean - samp_mean_violence) %>% 
+  mutate(sq_deviations = deviations^2) %>% 
+  mutate(weight_dev = sq_deviations*8) 
+between_group_violence <- sum(group_means$weight_dev)
+
+between_group_violence
+```
+
+```{r}
+```
+

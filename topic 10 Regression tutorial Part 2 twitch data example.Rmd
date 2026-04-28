@@ -14,7 +14,7 @@ options(scipen=999)
 #set your working directory and use the twitch data or you can import the data from the global enviornment 
 #import -> from text -> select the folder with your data -> select the file -> click import on the menu
 
-setwd("C:/Users/owner/Desktop/Fall 2024 Binghamton/DIDA 130/DIDA 130/Data")
+setwd("/Users/aidenstanton/projects/R")
 twitchdata <- read.csv("twitchdata.csv")
 ```
 
