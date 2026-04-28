@@ -48,7 +48,7 @@ ggplot(region2, aes(x = Nearby_Country_Events)) + geom_histogram(fill = "blue", 
 ```{r}
 ggplot(region2, aes(x = Nearby_Country_Events, y = country_events)) + 
   geom_point(color="orange") +
-  geom_smooth(method="lm", color="blue") +
+  geom_smooth(method="lm", color="blue", se=F) +
   labs(
     title = "Regional Political Violence",
     x = "Nearby Political Violence",

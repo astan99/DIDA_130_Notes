@@ -1,0 +1,301 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+setwd("C:/Users/owner/Desktop/Fall 2024 Binghamton/DIDA 130/DIDA 130/Data")
+sample_grades <- read.csv("sample_grade_gender.csv")
+
+head(sample_grades)
+
+#What are we looking at? This is going back to our earlier example with transforming non linear relationships. We have variables for the individual student, their gender, their test score, how many hours studied, and which class they're in. 
+```
+
+```{r}
+#Let's create our dummy variable for gender, because, in this circumstance it is viewed as binary (0 or 1) in R.  We are going to make female 1 and male 0 using the if/else function. In this case the binary distinction is that you're either female (f/true/1) or "not female" (m/male/false/0)
+
+#The syntax works like this:
+#ifelse(variable = value, number assigned to value, number assigned to other values)
+
+library(dplyr)
+sample_grades <- sample_grades %>% 
+  mutate(female = ifelse(gender == "f", 1, 0))
+
+#check the variables in the global environment.  We went from 5 to 6 variables which means the dummy variable was added. 
+
+head(sample_grades)
+```
+```{r}
+#Let's run a regression model looking at the predictors of study time and  being female on the score. I've named the model tg for time and gender
+
+model_tg <- lm(score ~ study_time+female, data = sample_grades)
+
+summary(model_tg)
+#summary gives us the output of all the information we need from the model
+```
+```{r}
+#Let's Predict score for a female student who studied for 2 hours
+
+#we use the intercept (the base score if x=0), then we will use the estimated standard deviations as they correspond to the values for our student. 2, for hours of studying 1, because the student is labeled female in the data. 
+
+#(intercept) + (study_time x hours studying) + (female x if they are female or "not")
+66.85+(4.21*2)+(3.22*1)
+```
+
+```{r}
+#Predict score for a male student who studied for 4 hours
+
+#we use the intercept (the base score if x=0), then we will use the estimated standard deviations as they correspond to the values for our student. 
+
+#hours of studying = 4
+#female = 0 
+
+
+66.85 + (4*4.21) + (3.22*0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+66.85+(4.21*4)+(3.22*0)
+```
+
+
+
+
+
+```{r}
+#ok, now we are going to add to the data and use the as.factor function within the mutate function. As.factor, allows us to look at the differences across class
+sample_grades <- sample_grades %>% 
+  mutate(class = as.factor(class))
+
+model_cfg <- lm(score ~ study_time+female+class, data = sample_grades)
+
+#I'm labeling this model cfg for class, female, and study time, just to differentiate it from the first model
+
+#now we can adjust our model. Score is still our outcome, study time, female and now class are our predictors. 
+summary(model_cfg)
+```
+Looking at the adjusted model our intercept has increased, the effect of study time has decreased from 4.21 to 3.49, the effect of gender (female or "not") has increased slightly, and class 2 and class 3 seem to be at an inverse relationship with score. Let's take a look at that graphically. This means that being in class 2 or 3 will decrease the predicted score--maybe they had bad study habits or the teacher was not helpful. 
+
+Let's take a look at categorical variables and interaction terms, graphically
+
+```{r}
+library(ggplot2)
+qplot(y = score, x = study_time, color = class, data = sample_grades)+
+  stat_smooth(method = "lm", se = F, fullrange = T)+
+  theme_minimal()
+```
+
+```{r}
+#Run the model with the interaction term. We are running an interaction because if we think that, for example, study time impacts students in classes 1-3 differently, then it might make sense to model the relationship between study time, class, and math scores using different intercepts and slopes. This model is labeled as interact stc to account for the interaction between class and studytime.
+
+model_interact_stc <- lm(score ~ class*study_time + female, data = sample_grades)
+
+#in the interaction term we use the * symbol to make the two predictor variables interact and still use the + to add the other predictor variables
+summary(model_interact_stc)
+```
+What should we pay attention to here? The last two predictor variables. The coefficient on class2:study_time tells us that, on average, each additional hour spent studying for a student in class 2 improves their score by 4.80, holding all else constant 4.80 is the additional effect of studying on students in class 2. For class 3, their score improves by 2.11 with each additional hour of studying 
+
+
+Now we want to examine if the categorical variable in our model (class) should be kept. I'm renaming the two models to 1 and 2, just to keep things easy with labeling. When using labels, use terms that make sense to you and can help keep you organized. 
+
+```{r}
+model1 <- lm(score ~ study_time + female, data = sample_grades)
+model2 <- lm(score ~ study_time + female + class, data = sample_grades)
+
+anova(model1, model2)
+```
+
+
+
+With the anova test for linear models (different from a regular anova test) we need to pay attention to the p value, which here is the Pr (>F).  It still needs to be lower than at least .05 in order to be significant. Model 1 is our null hypothesis (the categorical variable does not improve fit) and Model 2 is the alt hypothesis (the categorical variable does improve fit).  In this scenario, we fail to reject the null hypothesis and conclude that the model with class included does not improve the fit of our model.  This result means that we should be more inclined to keep the first model without class included. 
+___________________________________________________________________________________________________________________
+
+
+Next, we'll move on to probability models. Let's load in some real-world data. 
+
+```{r}
+setwd("C:/Users/owner/Desktop/Fall 2024 Binghamton/DIDA 130/DIDA 130/Data")
+scores <- read.csv("school_scores.csv")
+
+#this Data is looking at SAT scores and various demographic factors across the states from 2005-2015. It is calculating the averages for each state, for each part of the test, for each year. 
+
+#Let's create a binary dependent variable based on state SAT scores above the 75th percentile - which states do really well and why?
+
+hist(scores$Total.Math)
+
+scores <- scores %>% 
+  mutate(math_percentile = ntile(Total.Math, 100)) %>% 
+  mutate(above_75 = ifelse(math_percentile > 75, 1, 0)) %>% 
+  mutate(female_per = Gender.Female.Test.takers/   
+           (Gender.Female.Test.takers + Gender.Male.Test.takers)) %>% 
+  mutate(per_lowincome = Family.Income.Less.than.20k.Test.takers/Total.Test.takers)
+
+#here we are adding (via mutate) a bunch of columns
+#1) math percentile which is using the ntile (nth percentile) function on total math, the math scores. This is creating the percentile for each state score for Math
+#2) making a column using if/else  to code scores above the 75th percentile 1 and the rest 0 (binary)
+#3) calculating the percent of female test takers by adding female and male test takers and dividing that into female test takers
+#4) calculating the percent of low income test takers by dividing family income under 20k and dividing it by the total amount of test takers
+```
+
+```{r}
+hist(scores$above_75)
+
+```
+
+
+What are we looking at? It appears that math scores above the 75th percentile were a lot less than the scores less than the 75th percentile
+
+```{r}
+#now we're creating a data frame of just the variables that we want to have. 
+
+#select the variables we want
+sm_scores <-  scores %>% 
+  select(c(above_75, `Total.Test.takers`,    
+  `Academic.Subjects.Mathematics.Average.GPA`,
+  `Academic.Subjects.Mathematics.Average.Years`,
+  `per_lowincome`, `female_per`
+  ))
+
+sm_scores$per_lowincome <- sm_scores$per_lowincome * 100
+sm_scores$female_per <- sm_scores$female_per * 100
+
+#and we are going to rename the columns to fit the columns we created earlier and make it easier to read
+
+colnames(sm_scores) <- c("above_75", "test_takers", "math_gpa",
+                         "math_years", "per_lowincome",
+                         "female_per")
+
+
+#optional, remove scientific notation
+options(scipen = 999, digits = 4)
+#set number of digits to print
+#digits tells us how many numbers to keep after the decimal
+
+#now we are going to make a linear model of the scores above the 75th percentile with all of these predictor variables
+SATmodel_scores <- lm(formula = above_75 ~ test_takers + math_gpa + math_years + per_lowincome + female_per, data = sm_scores)
+
+summary(SATmodel_scores)
+
+```
+Which variables look significant?
+
+
+
+
+
+
+
+
+_________________________________________________
+
+intercept
+math gpa
+percent female
+
+__________________________________________________
+
+We can run a few more tests to help with interpretability 
+#first install the lmtest and sandwich packages
+
+```{r}
+library(lmtest)
+library(sandwich)
+coeftest(SATmodel_scores, vcov. = vcovHC, type = "HC1")
+#With non-constant variance, we’ll need to use robust standard errors for t-tests
+```
+
+math gpa, math years, and female percent are signficant predictor variables
+
+
+
+
+```{r}
+#Let's creat a graphical representation of the linear probability model's output
+#based on this model
+SATmodel1_scores <- lm(formula = above_75 ~ math_gpa, data = sm_scores)
+
+library(ggplot2)
+ggplot(sm_scores , aes(x = above_75, y = math_gpa))+
+  geom_point()+
+  geom_smooth(method = "lm", se = F)+
+  theme_minimal()
+
+```
+
+Our regression line appears to be constrained between 0 and 1, so this seems ok. But this will not always be the case and we'd have to do another test.
+
+
+```{r}
+#Let's run a logistic regression instead
+
+sm_scores <- sm_scores %>% mutate(math_gpa1 = math_gpa*100)
+
+model_glm <- glm(above_75 ~ test_takers + math_gpa1 + math_years + per_lowincome + female_per, family = binomial, data = sm_scores)
+
+#Generalized Linear Model function to re-run our model uses a process called Iteratively Reweighted Least Squares (IRLS). In a GLM model, the predicted variable is related to a linear model through a “link” function, which in our case is the Logistic Function. What does this mean? The odds are calculated as: (Odds of Success)/(Odds of Failure)
+
+summary(model_glm)
+```
+```{r}
+#Let's exponentiate the log-odds to make them more interpretable:
+#We'll need the broom package to do this:
+library(broom)
+#Tidy gives us a nice table to model results - the exp = T argument will exponentiate the log-odds
+tidy(model_glm, exp=T)
+```
+
+Any value over 1 indicates that the variable increases the odds of a state being in the upper 75th percentile of the Math SAT. A score below 1 indicates that the variable decreases the odds. E.g. an increase in a state’s mean GPA by 1 unit (the equivalent of .01) is associated with 17.1% higher odds of being in the top 75th percentile of Math SAT scores, holding all else constant 1.1708 -1 = .171, .171 x 100 = 17.1% increase
+
+
+```{r}
+#Let's use logistic regression to predict probabilities
+
+#If we have additional data (maybe for an additional sample, other years, etc.), we can use it to make predictions about states’ probabilities of being in the top 75% of math SAT scores
+
+setwd("C:/Users/owner/Desktop/Fall 2024 Binghamton/DIDA 130/DIDA 130/Data")
+test <- read.csv("predict_data.csv")
+
+
+test$predict <- predict(model_glm, newdata = test, type = "response")
+
+#data frame, select variable assign new variable built from glm model, newdata = dataframe with the variables you want to use to make predictions, type = response--tells it that we are using probabilities 
+test
+```
+
+Let's interpret-math_gpa1 = 300, math_years = 4.0, per_lowincome = 0.10, female_per = 0.49 it is unlikely that they will have scores above the 75% percentile.  for the next group math_gpa1 = 390, math_years = 3.5, per_lowincome = 0.02, female_per = 0.55, there his a very high likelyhood that they will score above the 75percentile for math
+
+
+
+```{r}
+
+#Let's run the same model as a probit model!
+
+model_prohibit <- glm(above_75 ~ test_takers + math_gpa1 + math_years + per_lowincome + female_per, family = binomial(link = "probit"), data = sm_scores)
+
+#The primary difference when using a Probit model is the link function used
+#The link function for probit regression is is the cumulative standard normal distribution function, Φ (phi)
+
+
+summary(model_prohibit)
+
+```
+So if we look at math gpa 1, we have .09.  So states with a 1 unit increase in gpa have an increase in z score of .09.  In more meaningful terms, states with higher math GPAs tend to score slightly higher relative to the overall distribution of scores. 
+
