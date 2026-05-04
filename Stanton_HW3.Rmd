@@ -1,0 +1,69 @@
+---
+title: "HW: 4 Topic 10, Linear Regression"
+
+---
+
+```{r}
+library(dplyr)
+library(car)
+library(lsr)
+library(ggplot2)
+options(scipen=999)
+```
+
+Data Source: https://howmuch.net/articles/hours-work-afford-home
+
+```{r}
+setwd("/Users/aidenstanton/projects/R")
+housing <- read.csv("Housing.csv")
+```
+
+In this example we want to build a regression model that shows the relationship between the Hours.per.Month.to.Afford.a.Home and  and Median.Home.Listing.Price. We predict that the median home price influences the hours of work needed to afford a home. Median home price is our independent variable and Hours per month is our dependent variable. 
+
+1) Let's set up our regression and create a summary output
+
+```{r}
+housing_regression <- lm(formula = Hours.per.Month.to.Afford.a.Home ~ Median.Home.Listing.Price, data=housing)
+summary(housing_regression)
+```
+
+2) Explain each part of the coefficents and what it means for our regression 
+_________________________________________________________________
+The intercept it the hours when price should be = 0. 
+Median home listing price = .000087812 for every $1 increase in price have to work that many hours. Higher prices work longer.
+Std error shows that the slope in reliable
+small p value means statistically significant
+
+_________________________________________________________________
+
+3) Plot the regression
+
+```{r}
+ggplot(housing, aes(x = Median.Home.Listing.Price, y = Hours.per.Month.to.Afford.a.Home))+
+  geom_point()+
+  geom_smooth(method = "lm", se = F)+
+  theme_minimal()
+
+```
+4) Let's see if another predictor variable will change our model. I also think that the Monthly.Mortgage.Payment influences Hours.per.Month.to.Afford.a.Home. Create a new regression with both of the predictor variables. Include the summary output.
+
+```{r}
+housing_regression2 <- lm(formula = Hours.per.Month.to.Afford.a.Home ~ Median.Home.Listing.Price +  Monthly.Mortgage.Payment, data=housing)
+summary(housing_regression2)
+
+```
+5)  Interpret what the coeffiecents in the output is telling us about the regression model.
+_____________________________________________________________________________
+Intercept is the same as before
+Median home listing price has an insignificant p value with mortgage payments not useful as a predictor anymore.
+Monthly mortage payment also has an insignificant p value and also has a negative coefficient so higher mortgage payments decrease hours.
+
+_____________________________________________________________________________
+
+6) Compare the regression models. Which model seems like a better fit for our data and why?
+The first model is better because it has a significant predictor. 
+
+
+7) Based on this analysis, what inferences could you make about housing affordability and work hours?
+
+Based on this analysis we can infer that housing affordability is affected by home prices as prices increase people have to work more hours to afford a home which can make it hard to keep up with ever increasing costs.
