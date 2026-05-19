@@ -1,0 +1,123 @@
+__________________________
+Homework 4: Topics 10 & 11
+__________________________
+
+
+1) What is the purpose of a linear regression? When would you use it in your research?
+
+
+Linear regression is used to model and predict a variable given one or more predictor variables to do so. You should use it when you want to see if your predictor variables have a relationship with the predicted variable.
+_______________________________________________________________________________________
+
+
+
+2)What should you do with a categorical variable in a regression?
+
+When dealing with a categorical variable you should use the as.factor() method so that they can be properly included in the regression
+
+
+_______________________________________________________________________________________
+
+
+In this section, run the regression model and answer the following questions
+
+```{r}
+setwd("C:/R")
+study_meditation <- read.csv("Study_meditation.csv")
+
+```
+
+```{r}
+study_gender <- lm(Score ~ Study.Hours+Gender_Dummy, data = study_meditation)
+
+summary(study_gender)
+
+#in the Gender_Dummy variable, female = 1, male = 0
+
+```
+
+3) What is the base score?
+
+___________
+The base score is around 52.8
+___________
+
+4) How many points are earned per hour of study?
+
+___________
+around 6.3 points are earned per hour of studying.
+___________
+
+5) How many points are earned based on gender?
+
+__________
+The model predicts that women will score 0.93 points higher than their male counterparts
+__________
+
+6) What would the predicted score be for a male student that studied for 2 hours? Show your work
+
+```{r}
+male_score <- 52.8336 + 6.3024 * 2
+male_score
+```
+_________
+
+_________
+
+7) What would the predicted score be for a female student that studied for 3 hours? Show your work
+
+```{r}
+female_score <- 52.8336 + (6.3024 * 3) + 0.9306
+female_score
+```
+_________
+
+_________
+
+8) I think that class also has an effect on score. Using the following model, what is the predicted score for a male student in class 3 that studied for 6 hours. Show your work
+
+```{r}
+library(dplyr)
+
+study_mutate <- study_meditation %>% 
+  mutate(Class = as.factor(Class))
+
+study_gender_class <- lm(Score ~ Study.Hours+Gender_Dummy+Class, data = study_mutate)
+
+summary(study_gender_class)
+```
+
+```{r}
+class_score <- 44.454 + (7.128 * 6) + 2.660
+class_score
+```
+____________
+
+____________
+
+9) Using the same model from question 8, what is the predicted score for a female student in class 2 that studied for 4 hours. Show your work
+
+```{r}
+female_class <- 44.454 + (7.128 * (4)) - 1.224 + 15.522
+female_class
+```
+__________
+
+
+__________
+
+10) Lastly, I think meditation hours impacts each class differently. What would be the predicted score of a male student in class 3 that studied for 3 hours with 2 hours of meditation? Show your work
+
+```{r}
+study_medhours <- lm(Score ~ Study.Hours+Gender_Dummy+Class*Meditation_Hours, data = study_mutate)
+
+summary(study_medhours)
+```
+```{r}
+meditation <- 107.8066 + (4.8327 * 3) - 49.7770 - (49.4551 * 2) + (48.0827 * 2)
+meditation
+```
+______
+
+
+______
